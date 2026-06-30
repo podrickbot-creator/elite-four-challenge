@@ -837,36 +837,315 @@ h2 {
 
 @media (max-width: 640px) {
   .game-shell {
-    width: min(100vw - 18px, 420px);
-    padding-top: 9px;
+    width: 100%;
+    padding: 0 10px 22px;
   }
 
-  .score-panel,
-  .slot-header,
-  .team-header {
-    align-items: stretch;
-    flex-direction: column;
+  .score-panel {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    min-height: 118px;
+    padding: 14px;
+    border-width: 3px;
+    border-radius: 0;
   }
 
+  .score-panel::before {
+    inset: 8px;
+    border-width: 2px;
+  }
+
+  h1 {
+    max-width: 240px;
+    font-size: 2.3rem;
+    line-height: 0.9;
+    -webkit-text-stroke: 1.5px var(--blue);
+    text-shadow:
+      2px 2px 0 #17366f,
+      4px 4px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  h2 {
+    font-size: 1.45rem;
+  }
+
+  .champion-sprite,
+  .champion-sprite.pikachu-mark {
+    min-width: 74px;
+    padding: 6px;
+    border-width: 3px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 3px #2d3f69;
+  }
+
+  .champion-sprite img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .setup-panel {
+    min-height: calc(100svh - 150px);
+    padding: 14px;
+    border-width: 3px;
+    border-radius: 0;
+  }
+
+  .mode-overlay,
   .result-team,
-  .result-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .result-actions {
-    flex-direction: column;
-  }
-
-  .squad-panel,
+  .result-stats,
   .roll-board,
   .team-grid {
     grid-template-columns: 1fr;
   }
 
-  .pick-zone,
-  .squad-panel,
-  .score-panel {
-    padding: 16px;
+  .large-mode {
+    min-height: 190px;
+    padding: 18px 14px;
   }
 
+  .large-mode strong {
+    font-size: 2.15rem;
+  }
+
+  .mode-ball {
+    width: 70px;
+    height: 70px;
+  }
+
+  .arena {
+    border-width: 3px;
+    border-radius: 0;
+  }
+
+  .squad-panel {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px;
+    border-bottom-width: 3px;
+  }
+
+  .slot-header,
+  .team-header {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .team-header button {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+  }
+
+  .team-card {
+    grid-template-columns: 48px 1fr auto;
+    min-height: 76px;
+    padding: 8px;
+    border-width: 3px;
+  }
+
+  .team-card .pokemon-sprite {
+    width: 50px;
+    height: 50px;
+  }
+
+  .team-card strong {
+    font-size: 0.92rem;
+  }
+
+  .team-card span {
+    font-size: 0.7rem;
+  }
+
+  .team-card .slot-score {
+    font-size: 0.95rem;
+  }
+
+  .pick-zone {
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .constraint-card {
+    min-height: 94px;
+    padding: 12px;
+    border-width: 3px;
+  }
+
+  .constraint-card strong {
+    max-width: calc(100% - 46px);
+    font-size: 1.35rem;
+    line-height: 1.05;
+  }
+
+  .constraint-card button {
+    width: 34px;
+    height: 34px;
+    top: 9px;
+    right: 9px;
+    border-width: 2px;
+  }
+
+  .round-chip {
+    min-width: 56px;
+    height: 38px;
+    border-width: 2px;
+    font-size: 0.88rem;
+  }
+
+  .monster-card,
+  .expert-list .monster-card {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px;
+    border-width: 3px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.26);
+  }
+
+  .monster-name-line {
+    grid-template-columns: 58px 1fr;
+  }
+
+  .pokemon-sprite {
+    width: 58px;
+    height: 58px;
+  }
+
+  .monster-name h3,
+  .expert-card .monster-name h3 {
+    font-size: 1.16rem;
+    line-height: 1.1;
+  }
+
+  .tags {
+    gap: 5px;
+  }
+
+  .tag {
+    padding: 4px 6px;
+    font-size: 0.62rem;
+  }
+
+  .compact-stats {
+    justify-content: flex-start;
+    gap: 5px 8px;
+  }
+
+  .stat-row {
+    font-size: 0.68rem;
+  }
+
+  .rating {
+    justify-self: start;
+    font-size: 0.9rem;
+  }
+
+  .spin-window {
+    width: min(320px, calc(100% - 24px));
+    padding: 18px;
+    border-width: 3px;
+  }
+
+  .spin-values {
+    grid-template-columns: 1fr;
+  }
+
+  .spin-values strong {
+    min-height: 64px;
+    font-size: 1.55rem;
+  }
+
+  .verdict {
+    padding: 12px;
+    border-width: 3px;
+    border-radius: 0;
+    font-size: 0.86rem;
+  }
+
+  .team-note {
+    padding: 0 10px;
+    font-size: 0.74rem;
+    line-height: 1.3;
+  }
+
+  .rank-modal {
+    align-items: start;
+    padding: 8px;
+  }
+
+  .rank-dialog {
+    width: 100%;
+    max-height: calc(100svh - 16px);
+    padding: 14px;
+    border-width: 3px;
+  }
+
+  .rank-dialog h2 {
+    gap: 7px;
+    margin-bottom: 12px;
+  }
+
+  .rank-dialog h2 span {
+    font-size: 0.85rem;
+  }
+
+  .rank-dialog h2 strong {
+    min-width: 0;
+    width: 100%;
+    padding: 10px;
+    border-width: 3px;
+    font-size: 2.2rem;
+  }
+
+  .rank-dialog h2 em {
+    font-size: 1.35rem;
+  }
+
+  .rank-dialog h2 small {
+    font-size: 1rem;
+  }
+
+  .rank-dialog p:not(.eyebrow) {
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
+  .result-section {
+    margin-top: 16px;
+  }
+
+  .result-pick {
+    grid-template-columns: 54px 1fr;
+    padding: 8px;
+    border-width: 2px;
+  }
+
+  .result-pick .pokemon-sprite {
+    width: 54px;
+    height: 54px;
+  }
+
+  .result-pick strong {
+    font-size: 0.86rem;
+  }
+
+  .result-pick span {
+    font-size: 0.68rem;
+  }
+
+  .result-stat {
+    padding: 9px;
+    border-width: 2px;
+  }
+
+  .result-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .rank-dialog button {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
 }
