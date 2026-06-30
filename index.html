@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elite Four Challenge</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="score-panel" aria-label="Elite Four Challenge status">
+        <div>
+          <h1>Elite Four Challenge</h1>
+        </div>
+        <div class="champion-sprite pikachu-mark" aria-label="Pikachu">
+          <img
+            src="./assets/pikachu-sprite.svg"
+            alt="Pikachu"
+            loading="lazy"
+          />
+        </div>
+      </section>
+
+      <section class="setup-panel" id="setupPanel" aria-label="Challenge setup">
+        <div class="mode-overlay" aria-label="Choose mode">
+          <button class="mode-button large-mode" type="button" data-mode="normal">
+            <strong>Normal Mode</strong>
+            <img class="mode-ball" src="./assets/pokeball.svg" alt="Pokeball" loading="lazy" />
+          </button>
+          <button class="mode-button large-mode" type="button" data-mode="expert">
+            <strong>Expert Mode</strong>
+            <img class="mode-ball" src="./assets/masterball.svg" alt="Master Ball" loading="lazy" />
+            <span>No stats listed, Pokemon in alphabetical order</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="arena hidden" id="arena">
+        <aside class="squad-panel" aria-label="Elite Four Challenge team slots">
+          <div class="team-header compact">
+            <div>
+              <p class="eyebrow">Squad</p>
+              <h2>Team</h2>
+            </div>
+            <button id="resetGame" type="button">New Run</button>
+          </div>
+          <div class="team-grid" id="teamGrid"></div>
+        </aside>
+
+        <div class="pick-zone">
+          <div class="slot-header">
+            <div>
+              <p class="eyebrow">Current Slot</p>
+              <h2 id="slotName">Lead</h2>
+            </div>
+            <div class="round-chip"><span id="filledCount">0</span>/6</div>
+          </div>
+
+          <div class="roll-board">
+            <div class="constraint-card">
+              <span>Generation</span>
+              <strong id="generationConstraint">Gen 1</strong>
+              <em id="generationRerollCount">1 reroll</em>
+              <button id="rerollGeneration" type="button" aria-label="Reroll generation">↻</button>
+            </div>
+            <div class="constraint-card">
+              <span>Typing</span>
+              <strong id="typingConstraint">Fire</strong>
+              <em id="typingRerollCount">1 reroll</em>
+              <button id="rerollTyping" type="button" aria-label="Reroll typing">↻</button>
+            </div>
+          </div>
+
+          <div class="spin-overlay" id="spinOverlay" aria-hidden="true">
+            <div class="spin-window">
+              <p class="eyebrow">Rolling</p>
+              <div class="spin-values">
+                <strong id="spinGeneration">Gen 1</strong>
+                <strong id="spinTyping">Fire</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="candidate-grid" id="candidateGrid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <p class="verdict hidden" id="verdict">Pick a slot, draft from the current generation and typing roll, and build a team worthy of Hoenn.</p>
+      <p class="team-note">* Overall team comp is important, diversity is key!</p>
+    </main>
+
+    <div class="rank-modal" id="rankModal" aria-hidden="true">
+      <div class="rank-dialog" role="dialog" aria-modal="true" aria-labelledby="rankTitle">
+        <h2 id="rankTitle">A+ Elite Four Champion</h2>
+        <div class="rank-score" id="rankScore">96%</div>
+        <p id="rankDescription">Pokemon Championship team locked.</p>
+        <div class="result-section">
+          <h3>Elite Four Team</h3>
+          <div class="result-team" id="resultTeam"></div>
+        </div>
+        <div class="result-section">
+          <h3>Aggregate Stats</h3>
+          <div class="result-stats" id="resultStats"></div>
+        </div>
+        <div class="result-actions">
+          <button id="closeRank" type="button">Play Again</button>
+          <button id="shareRank" type="button">Share Team</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./pokemon-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
