@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Elite Four Challenge" />
     <meta name="twitter:description" content="Draft a Pokemon team and see if your squad can clear the Elite Four." />
     <meta name="twitter:image" content="https://podrickbot-creator.github.io/elite-four-challenge/assets/social-card.png" />
-    <link rel="stylesheet" href="./styles.css?v=5" />
+    <link rel="stylesheet" href="./styles.css?v=6" />
   </head>
   <body>
     <main class="game-shell">
@@ -64,7 +64,7 @@
           <div class="slot-header">
             <div>
               <p class="eyebrow">Current Slot</p>
-              <h2 id="slotName">Lead</h2>
+              <h2 id="slotName">Slot 1</h2>
             </div>
             <div class="round-chip"><span id="filledCount">0</span>/6</div>
           </div>
@@ -77,10 +77,10 @@
               <button id="rerollGeneration" type="button" aria-label="Respin current options">↻</button>
             </div>
             <div class="constraint-card">
-              <span>Location</span>
-              <strong id="typingConstraint">Starter</strong>
-              <em id="typingRerollCount">slot pool</em>
-              <button id="rerollTyping" type="button" aria-label="Location is set by selected slot">↻</button>
+              <span>Biome</span>
+              <strong id="typingConstraint">Tall Grass</strong>
+              <em id="typingRerollCount">biome roll</em>
+              <button id="rerollTyping" type="button" aria-label="Biome is rolled by selected slot">↻</button>
             </div>
           </div>
 
@@ -89,7 +89,7 @@
               <p class="eyebrow">Rolling</p>
               <div class="spin-values">
                 <strong id="spinGeneration">Gen 1</strong>
-                <strong id="spinTyping">Starter</strong>
+                <strong id="spinTyping">Tall Grass</strong>
               </div>
             </div>
           </div>
@@ -112,10 +112,6 @@
           <h3>Elite Four Team</h3>
           <div class="result-team" id="resultTeam"></div>
         </div>
-        <div class="result-section">
-          <h3>Aggregate Stats</h3>
-          <div class="result-stats" id="resultStats"></div>
-        </div>
         <div class="result-actions">
           <button id="closeRank" type="button">Play Again</button>
           <button id="shareRank" type="button">Share Team</button>
@@ -123,7 +119,7 @@
       </div>
     </div>
 
-    <script src="./pokemon-data.js?v=5"></script>
-    <script src="./app.js?v=5"></script>
+    <script src="./pokemon-data.js?v=6"></script>
+    <script src="./app.js?v=6"></script>
   </body>
 </html>

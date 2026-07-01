@@ -415,16 +415,16 @@ h2 {
 }
 
 .candidate-grid.three-roll .monster-card {
-  min-height: 104px;
+  min-height: 134px;
 }
 
 .monster-card {
   display: grid;
-  grid-template-columns: minmax(180px, 1.35fr) minmax(160px, 1fr) 72px 72px;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
   min-height: 58px;
-  padding: 12px 14px;
+  padding: 16px 18px;
   text-align: left;
   transition:
     transform 160ms ease,
@@ -433,11 +433,11 @@ h2 {
 }
 
 .expert-list .monster-card {
-  grid-template-columns: minmax(190px, 1fr) minmax(160px, auto);
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .expert-card .monster-name h3 {
-  font-size: 1.35rem;
+  font-size: 2rem;
 }
 
 .monster-card:hover {
@@ -456,14 +456,14 @@ h2 {
 
 .monster-name-line {
   display: grid;
-  grid-template-columns: 70px 1fr;
+  grid-template-columns: 118px 1fr;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
 }
 
 .pokemon-sprite {
-  width: 70px;
-  height: 70px;
+  width: 118px;
+  height: 118px;
   image-rendering: pixelated;
   object-fit: contain;
   filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.42));
@@ -477,8 +477,8 @@ h2 {
 
 .monster-name h3 {
   margin: 0;
-  font-size: 1.5rem;
-  line-height: 1.02;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 0.96;
 }
 
 .rating {
@@ -486,68 +486,6 @@ h2 {
   font-size: 1rem;
   font-weight: 950;
   text-align: right;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 0;
-}
-
-.tag {
-  padding: 5px 8px;
-  border-radius: 0;
-  border: 2px solid var(--line);
-  background: #0d1326;
-  color: var(--screen);
-  font-size: 0.72rem;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.stats {
-  display: grid;
-  gap: 8px;
-}
-
-.compact-stats {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 7px;
-}
-
-.stat-row {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 4px;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.stat-row .bar {
-  display: none;
-}
-
-.stat-row b {
-  color: var(--text);
-}
-
-.bar {
-  height: 8px;
-  border-radius: 999px;
-  background: #0d1326;
-  overflow: hidden;
-}
-
-.bar i {
-  display: block;
-  width: var(--value);
-  height: 100%;
-  border-radius: inherit;
-  background: var(--type-color);
 }
 
 .team-header button {
@@ -845,8 +783,7 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .rating,
-  .compact-stats {
+  .rating {
     justify-content: flex-start;
     text-align: left;
   }
@@ -1029,36 +966,18 @@ h2 {
   }
 
   .monster-name-line {
-    grid-template-columns: 58px 1fr;
+    grid-template-columns: 86px 1fr;
   }
 
   .pokemon-sprite {
-    width: 58px;
-    height: 58px;
+    width: 86px;
+    height: 86px;
   }
 
   .monster-name h3,
   .expert-card .monster-name h3 {
-    font-size: 1.16rem;
-    line-height: 1.1;
-  }
-
-  .tags {
-    gap: 5px;
-  }
-
-  .tag {
-    padding: 4px 6px;
-    font-size: 0.62rem;
-  }
-
-  .compact-stats {
-    justify-content: flex-start;
-    gap: 5px 8px;
-  }
-
-  .stat-row {
-    font-size: 0.68rem;
+    font-size: 1.65rem;
+    line-height: 1;
   }
 
   .rating {

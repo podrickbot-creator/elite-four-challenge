@@ -1,21 +1,20 @@
 const slots = [
-  { label: "Starter" },
-  { label: "HM Slave" },
-  { label: "Cave" },
-  { label: "Water" },
-  { label: "High Grass" },
-  { label: "Safari" },
+  { label: "1" },
+  { label: "2" },
+  { label: "3" },
+  { label: "4" },
+  { label: "5" },
+  { label: "6" },
 ];
 
 const generations = [1, 2, 3, 4];
-const encounterRolls = [
-  "Starter",
-  "HM Slave",
+const biomeRolls = [
+  "Tall Grass",
   "Cave",
   "Water",
-  "High Grass",
   "Safari",
 ];
+const legendaryBiome = "Legendary";
 
 const typeColors = {
   Electric: "#f6ca45",
@@ -285,7 +284,7 @@ const encounterPools = {
     "Lumineon",
     "Mantyke",
   ],
-  "High Grass": [
+  "Tall Grass": [
     "Pidgey",
     "Pidgeotto",
     "Pidgeot",
@@ -575,7 +574,6 @@ const els = {
   rankScore: document.querySelector("#rankScore"),
   rankDescription: document.querySelector("#rankDescription"),
   resultTeam: document.querySelector("#resultTeam"),
-  resultStats: document.querySelector("#resultStats"),
   spinOverlay: document.querySelector("#spinOverlay"),
   spinGeneration: document.querySelector("#spinGeneration"),
   spinTyping: document.querySelector("#spinTyping"),
@@ -596,8 +594,9 @@ function newState() {
     selectedSlot: 0,
     picks: Array(slots.length).fill(null),
     slotRolls: Array(slots.length).fill(null),
+    slotBiomes: Array(slots.length).fill(null),
     generation: 1,
-    typing: "Starter",
+    typing: "Tall Grass",
     generationRerolls: 2,
     typingRerolls: 1,
     candidates: [],
@@ -620,7 +619,12 @@ function selectedSlot() {
 }
 
 function currentEncounter() {
-  return selectedSlot().label;
+  if (state.selectedSlot === slots.length - 1) return legendaryBiome;
+  return state.slotBiomes[state.selectedSlot] || "Tall Grass";
+}
+
+function rollableBiomes() {
+  return state.selectedSlot === slots.length - 1 ? [legendaryBiome] : biomeRolls;
 }
 
 function usedNames() {
@@ -634,6 +638,7 @@ function usedNames() {
 }
 
 function matchesEncounter(monster, encounter) {
+  if (encounter === legendaryBiome) return monster.legendary;
   return Boolean(encounterNameSets[encounter]?.has(monster.name));
 }
 
@@ -648,6 +653,7 @@ function poolFor(generation, encounter, used) {
       !excludedPokemon.has(monster.name) &&
       !used.has(monster.name) &&
       monster.generation === generation &&
+      (encounter === legendaryBiome || !monster.legendary) &&
       matchesEncounter(monster, encounter),
   );
 }
@@ -655,9 +661,10 @@ function poolFor(generation, encounter, used) {
 function validCombos(used = usedNames()) {
   const combos = [];
   generations.forEach((generation) => {
-    const encounter = currentEncounter();
-    const pool = poolFor(generation, encounter, used);
-    if (pool.length > 0) combos.push({ generation, typing: encounter, count: pool.length });
+    rollableBiomes().forEach((encounter) => {
+      const pool = poolFor(generation, encounter, used);
+      if (pool.length > 0) combos.push({ generation, typing: encounter, count: pool.length });
+    });
   });
   return combos;
 }
@@ -669,10 +676,11 @@ function rollFreshConstraints() {
   if (!selected) return;
   state.generation = selected.generation;
   state.typing = selected.typing;
+  state.slotBiomes[state.selectedSlot] = selected.typing;
 }
 
 function pickCandidates() {
-  const candidates = candidatePool().map((monster) => ({ ...monster, draftScore: draftScore(monster) }));
+  const candidates = candidatePool();
   const rolled = shuffle(candidates).slice(0, 3);
   state.slotRolls[state.selectedSlot] = rolled.length ? rolled : null;
   state.candidates = rolled;
@@ -682,23 +690,16 @@ function selectedRolls() {
   return state.slotRolls[state.selectedSlot] || [];
 }
 
-function draftScore(monster) {
-  const exactBonus = 40;
-  const encounterBonus = currentEncounter() === "Starter" ? 34 : 24;
-  const multiTypeBonus = monster.types.length > 1 ? 8 : 0;
-  return Math.round(monster.bst / 7 + exactBonus + encounterBonus + multiTypeBonus);
-}
-
 function render() {
   els.generation.textContent = `Gen ${state.generation}`;
   state.typing = currentEncounter();
   els.typing.textContent = currentEncounter();
   els.generationRerollCount.textContent = `${state.generationRerolls} respin${state.generationRerolls === 1 ? "" : "s"}`;
-  els.typingRerollCount.textContent = "slot pool";
-  els.rerollGeneration.disabled = state.generationRerolls === 0;
+  els.typingRerollCount.textContent = state.selectedSlot === slots.length - 1 ? "legendary roll" : "biome roll";
+  els.rerollGeneration.disabled = state.generationRerolls === 0 || Boolean(state.picks[state.selectedSlot]);
   els.rerollTyping.disabled = true;
   els.rerollTyping.hidden = true;
-  els.slotName.textContent = selectedSlot().label;
+  els.slotName.textContent = `Slot ${selectedSlot().label}`;
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
   els.candidateGrid.classList.add("three-roll");
@@ -739,19 +740,10 @@ function renderCandidates() {
 
 function cardTemplate(monster) {
   const color = monster.legendary ? typeColors.Legendary : typeColors[monster.types[0]] || "#7f8790";
-  const buttonLabel = state.mode === "expert" ? "Lock In" : `Lock In ${monster.draftScore}`;
-  if (state.mode === "expert") {
-    return `
-      <button class="monster-card expert-card" data-name="${monster.name}" style="--type-color: ${color}">
-        ${cardInnerTemplate(monster)}
-        <span class="rating">${buttonLabel}</span>
-    </button>
-  `;
-  }
   return `
     <button class="monster-card" data-name="${monster.name}" style="--type-color: ${color}">
       ${cardInnerTemplate(monster)}
-      <span class="rating">${buttonLabel}</span>
+      <span class="rating">Lock In</span>
     </button>
   `;
 }
@@ -762,27 +754,8 @@ function cardInnerTemplate(monster) {
       ${spriteImg(monster)}
       <div class="monster-name">
         <h3>${monster.name}</h3>
-        ${state.mode === "expert" ? "" : `<span>BST ${monster.bst}</span>`}
       </div>
     </div>
-    <div class="tags">
-      ${monster.legendary ? `<span class="tag">Legendary</span>` : ""}
-      ${monster.types.map((type) => `<span class="tag">${type}</span>`).join("")}
-      <span class="tag">Gen ${monster.generation}</span>
-      <span class="tag">${monster.encounter || currentEncounter()}</span>
-    </div>
-    ${
-      state.mode === "expert"
-        ? ""
-        : `<div class="stats compact-stats">
-            ${stat("HP", monster.stats.hp, 160)}
-            ${stat("Atk", monster.stats.attack, 160)}
-            ${stat("Def", monster.stats.defense, 160)}
-            ${stat("SpA", monster.stats.specialAttack, 160)}
-            ${stat("SpD", monster.stats.specialDefense, 160)}
-            ${stat("Spe", monster.stats.speed, 160)}
-          </div>`
-    }
   `;
 }
 
@@ -790,22 +763,18 @@ function spriteImg(monster) {
   return `<img class="pokemon-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${monster.id}.png" alt="" loading="lazy" />`;
 }
 
-function stat(label, value, max) {
-  return `<div class="stat-row"><span>${label}</span><div class="bar"><i style="--value:${Math.min(100, Math.round((value / max) * 100))}%"></i></div><b>${value}</b></div>`;
-}
-
 function renderTeam() {
   els.teamGrid.innerHTML = slots
     .map((slot, index) => {
       const pick = state.picks[index];
       const selected = index === state.selectedSlot ? " selected" : "";
-      const score = pick ? `<span class="slot-score">${pick.bst}</span>` : `<span class="slot-score">+</span>`;
+      const score = `<span class="slot-score">${pick ? "✓" : "+"}</span>`;
       const roll = state.slotRolls[index];
       const meta = pick
-        ? `<strong>${pick.name}</strong><span>${slot.label} · ${pick.types.join(" / ")} · Gen ${pick.generation}</span>`
+        ? `<strong>${pick.name}</strong><span>${pick.encounter || state.slotBiomes[index]}</span>`
         : roll
           ? `<strong>${slot.label}</strong><span>3 options rolled</span>`
-          : `<strong>${slot.label}</strong><span>Click to roll this encounter</span>`;
+          : `<strong>${slot.label}</strong><span>Click to roll this biome</span>`;
       const sprite = pick ? spriteImg(pick) : roll ? spriteImg(roll[0]) : `<span></span>`;
       return `<button class="team-card${selected}" data-slot="${index}">${sprite}<span class="slot-meta">${meta}</span>${score}</button>`;
     })
@@ -926,7 +895,6 @@ function showRankModal() {
   const composition = compositionScore();
   const score = composition.score;
   const rank = rankFor(score);
-  const totals = aggregateStats();
   els.rankTitle.innerHTML = `
     <span>Final Ranking</span>
     <strong>Grade ${rank.grade}</strong>
@@ -942,19 +910,11 @@ function showRankModal() {
           ${spriteImg(pick)}
           <span>
             <strong>${index + 1}. ${pick.name}</strong>
-            <span>${pick.encounter || slots[index].label} · ${pick.types.join(" / ")} · Gen ${pick.generation} · BST ${pick.bst}</span>
+            <span>${pick.encounter || state.slotBiomes[index]} · ${pick.types.join(" / ")}</span>
           </span>
         </div>
       `,
     )
-    .join("");
-  els.resultStats.innerHTML = [
-    ["Power", `${composition.power}%`],
-    ["Balance", `${composition.balance}%`],
-    ["Attack", totals.attack],
-    ["Defense", totals.defense],
-  ]
-    .map(([label, value]) => `<div class="result-stat"><span>${label}</span><strong>${value}</strong></div>`)
     .join("");
   els.rankModal.classList.add("open");
   els.rankModal.setAttribute("aria-hidden", "false");
@@ -1018,7 +978,7 @@ function spinRoll(kind = "both") {
       els.spinGeneration.textContent = `Gen ${sample(generations)}`;
     }
     if (kind === "both" || kind === "typing") {
-      els.spinTyping.textContent = sample(encounterRolls);
+      els.spinTyping.textContent = sample(rollableBiomes());
     }
     if (ticks >= spinDelays.length) {
       window.clearTimeout(spinTimer);
@@ -1043,7 +1003,7 @@ function spinRoll(kind = "both") {
 }
 
 function reroll(kind) {
-  if (kind === "generation" && state.generationRerolls > 0) {
+  if (kind === "generation" && state.generationRerolls > 0 && !state.picks[state.selectedSlot]) {
     state.generationRerolls -= 1;
     spinRoll("both");
   }
