@@ -197,6 +197,11 @@ h2 {
   align-self: center;
 }
 
+.start-overlay {
+  grid-template-columns: minmax(0, 720px);
+  justify-content: center;
+}
+
 .mode-button {
   border: 4px solid var(--line);
   background: #155444;
@@ -223,6 +228,11 @@ h2 {
   text-align: center;
 }
 
+.start-run-button {
+  min-height: 310px;
+  padding: 30px;
+}
+
 .large-mode strong {
   color: inherit;
   font-size: clamp(2rem, 5vw, 4rem);
@@ -230,10 +240,11 @@ h2 {
 }
 
 .large-mode span {
-  max-width: 360px;
+  max-width: 560px;
   color: currentColor;
-  font-size: clamp(0.9rem, 2vw, 1.15rem);
-  line-height: 1.25;
+  font-size: clamp(0.95rem, 2vw, 1.25rem);
+  line-height: 1.35;
+  text-transform: none;
 }
 
 .mode-ball {
@@ -415,16 +426,16 @@ h2 {
 }
 
 .candidate-grid.three-roll .monster-card {
-  min-height: 134px;
+  min-height: 146px;
 }
 
 .monster-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 18px;
+  gap: 22px;
   min-height: 58px;
-  padding: 16px 18px;
+  padding: 18px 22px 18px 18px;
   text-align: left;
   transition:
     transform 160ms ease,
@@ -456,14 +467,15 @@ h2 {
 
 .monster-name-line {
   display: grid;
-  grid-template-columns: 118px 1fr;
+  grid-template-columns: 132px 1fr;
   align-items: center;
-  gap: 18px;
+  gap: 22px;
 }
 
 .pokemon-sprite {
-  width: 118px;
-  height: 118px;
+  justify-self: center;
+  width: 126px;
+  height: 126px;
   image-rendering: pixelated;
   object-fit: contain;
   filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.42));
@@ -674,12 +686,11 @@ h2 {
 
 .result-team {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.result-pick,
-.result-stat {
+.result-pick {
   border: 3px solid var(--line);
   border-radius: 0;
   background: #18213a;
@@ -687,46 +698,14 @@ h2 {
 
 .result-pick {
   display: grid;
-  grid-template-columns: 62px 1fr;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 12px;
+  place-items: center;
+  min-height: 126px;
+  padding: 8px;
 }
 
-.result-pick strong {
-  font-size: 1rem;
-}
-
-.result-pick span {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.result-stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.result-stat {
-  padding: 10px;
-  text-align: center;
-}
-
-.result-stat span {
-  display: block;
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.result-stat strong {
-  display: block;
-  margin-top: 3px;
-  color: var(--text);
-  font-size: 1.2rem;
+.result-pick .pokemon-sprite {
+  width: 124px;
+  height: 124px;
 }
 
 .result-actions {
@@ -855,16 +834,23 @@ h2 {
   }
 
   .mode-overlay,
-  .result-team,
-  .result-stats,
   .roll-board,
   .team-grid {
     grid-template-columns: 1fr;
   }
 
+  .result-team {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .large-mode {
     min-height: 190px;
     padding: 18px 14px;
+  }
+
+  .start-run-button {
+    min-height: 260px;
+    padding: 22px 16px;
   }
 
   .large-mode strong {
@@ -960,18 +946,19 @@ h2 {
   .expert-list .monster-card {
     grid-template-columns: 1fr;
     gap: 8px;
-    padding: 10px;
+    padding: 14px;
     border-width: 3px;
     box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.26);
   }
 
   .monster-name-line {
-    grid-template-columns: 86px 1fr;
+    grid-template-columns: 98px 1fr;
+    gap: 14px;
   }
 
   .pokemon-sprite {
-    width: 86px;
-    height: 86px;
+    width: 96px;
+    height: 96px;
   }
 
   .monster-name h3,
@@ -1064,27 +1051,14 @@ h2 {
   }
 
   .result-pick {
-    grid-template-columns: 54px 1fr;
     padding: 8px;
     border-width: 2px;
+    min-height: 82px;
   }
 
   .result-pick .pokemon-sprite {
-    width: 54px;
-    height: 54px;
-  }
-
-  .result-pick strong {
-    font-size: 0.86rem;
-  }
-
-  .result-pick span {
-    font-size: 0.68rem;
-  }
-
-  .result-stat {
-    padding: 9px;
-    border-width: 2px;
+    width: 78px;
+    height: 78px;
   }
 
   .result-actions {

@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Elite Four Challenge" />
     <meta name="twitter:description" content="Draft a Pokemon team and see if your squad can clear the Elite Four." />
     <meta name="twitter:image" content="https://podrickbot-creator.github.io/elite-four-challenge/assets/social-card.png" />
-    <link rel="stylesheet" href="./styles.css?v=6" />
+    <link rel="stylesheet" href="./styles.css?v=8" />
   </head>
   <body>
     <main class="game-shell">
@@ -35,15 +35,11 @@
       </section>
 
       <section class="setup-panel" id="setupPanel" aria-label="Challenge setup">
-        <div class="mode-overlay" aria-label="Choose mode">
-          <button class="mode-button large-mode" type="button" data-mode="normal">
-            <strong>Normal Mode</strong>
+        <div class="mode-overlay start-overlay" aria-label="Start challenge">
+          <button class="mode-button large-mode start-run-button" type="button" data-mode="normal">
+            <strong>Start Run</strong>
             <img class="mode-ball" src="./assets/pokeball.svg" alt="Pokeball" loading="lazy" />
-          </button>
-          <button class="mode-button large-mode" type="button" data-mode="expert">
-            <strong>Expert Mode</strong>
-            <img class="mode-ball" src="./assets/masterball.svg" alt="Master Ball" loading="lazy" />
-            <span>No stats listed, three blind options per slot</span>
+            <span>Build the best team you can from random generations and rolled biomes. You get two respins for the whole run. Good luck beating the Elite Four.</span>
           </button>
         </div>
       </section>
@@ -107,11 +103,11 @@
       <div class="rank-dialog" role="dialog" aria-modal="true" aria-labelledby="rankTitle">
         <h2 id="rankTitle">A+ Elite Four Champion</h2>
         <div class="rank-score" id="rankScore">96%</div>
-        <p id="rankDescription">Pokemon Championship team locked.</p>
         <div class="result-section">
           <h3>Elite Four Team</h3>
           <div class="result-team" id="resultTeam"></div>
         </div>
+        <p id="rankDescription">Your team finished with 8 Badges.</p>
         <div class="result-actions">
           <button id="closeRank" type="button">Play Again</button>
           <button id="shareRank" type="button">Share Team</button>
@@ -119,7 +115,7 @@
       </div>
     </div>
 
-    <script src="./pokemon-data.js?v=6"></script>
-    <script src="./app.js?v=6"></script>
+    <script src="./pokemon-data.js?v=8"></script>
+    <script src="./app.js?v=8"></script>
   </body>
 </html>

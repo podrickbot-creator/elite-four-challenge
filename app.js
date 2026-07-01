@@ -902,16 +902,12 @@ function showRankModal() {
     <small>${score}% win rate</small>
   `;
   els.rankScore.textContent = "";
-  els.rankDescription.textContent = rank.description;
+  els.rankDescription.textContent = `Your team finished with ${rank.title}.`;
   els.resultTeam.innerHTML = state.picks
     .map(
       (pick, index) => `
-        <div class="result-pick">
+        <div class="result-pick" title="${index + 1}. ${pick.name}">
           ${spriteImg(pick)}
-          <span>
-            <strong>${index + 1}. ${pick.name}</strong>
-            <span>${pick.encounter || state.slotBiomes[index]} · ${pick.types.join(" / ")}</span>
-          </span>
         </div>
       `,
     )
