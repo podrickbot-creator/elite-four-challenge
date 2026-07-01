@@ -402,12 +402,12 @@ h2 {
   gap: 8px;
 }
 
-.candidate-grid.single-roll {
+.candidate-grid.three-roll {
   align-content: start;
 }
 
-.candidate-grid.single-roll .monster-card {
-  min-height: 132px;
+.candidate-grid.three-roll .monster-card {
+  min-height: 104px;
 }
 
 .monster-card {

@@ -597,7 +597,7 @@ function newState() {
     slotRolls: Array(slots.length).fill(null),
     generation: 1,
     typing: "Starter",
-    generationRerolls: 1,
+    generationRerolls: 2,
     typingRerolls: 1,
     candidates: [],
     mode: previousSettings.mode,
@@ -608,6 +608,10 @@ function newState() {
 
 function sample(list) {
   return list[Math.floor(Math.random() * list.length)];
+}
+
+function shuffle(list) {
+  return [...list].sort(() => Math.random() - 0.5);
 }
 
 function selectedSlot() {
@@ -624,7 +628,7 @@ function usedNames() {
     ...state.slotRolls
       .filter(Boolean)
       .filter((roll, index) => index !== state.selectedSlot && !state.picks[index])
-      .map((roll) => roll.name),
+      .flatMap((rolls) => rolls.map((roll) => roll.name)),
   ]);
 }
 
@@ -668,13 +672,13 @@ function rollFreshConstraints() {
 
 function pickCandidates() {
   const candidates = candidatePool().map((monster) => ({ ...monster, draftScore: draftScore(monster) }));
-  const rolled = sample(candidates);
-  state.slotRolls[state.selectedSlot] = rolled || null;
-  state.candidates = rolled ? [rolled] : [];
+  const rolled = shuffle(candidates).slice(0, 3);
+  state.slotRolls[state.selectedSlot] = rolled.length ? rolled : null;
+  state.candidates = rolled;
 }
 
-function selectedRoll() {
-  return state.slotRolls[state.selectedSlot];
+function selectedRolls() {
+  return state.slotRolls[state.selectedSlot] || [];
 }
 
 function draftScore(monster) {
@@ -688,7 +692,7 @@ function render() {
   els.generation.textContent = `Gen ${state.generation}`;
   state.typing = currentEncounter();
   els.typing.textContent = currentEncounter();
-  els.generationRerollCount.textContent = `${state.generationRerolls} reroll${state.generationRerolls === 1 ? "" : "s"}`;
+  els.generationRerollCount.textContent = `${state.generationRerolls} respin${state.generationRerolls === 1 ? "" : "s"}`;
   els.typingRerollCount.textContent = "slot pool";
   els.rerollGeneration.disabled = state.generationRerolls === 0;
   els.rerollTyping.disabled = true;
@@ -696,7 +700,7 @@ function render() {
   els.slotName.textContent = selectedSlot().label;
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
-  els.candidateGrid.classList.add("single-roll");
+  els.candidateGrid.classList.add("three-roll");
   renderSettings();
   renderCandidates();
   renderTeam();
@@ -796,9 +800,9 @@ function renderTeam() {
       const meta = pick
         ? `<strong>${pick.name}</strong><span>${slot.label} · ${pick.types.join(" / ")} · Gen ${pick.generation}</span>`
         : roll
-          ? `<strong>${slot.label}</strong><span>Rolled ${roll.name}</span>`
+          ? `<strong>${slot.label}</strong><span>3 options rolled</span>`
           : `<strong>${slot.label}</strong><span>Click to roll this encounter</span>`;
-      const sprite = pick ? spriteImg(pick) : roll ? spriteImg(roll) : `<span></span>`;
+      const sprite = pick ? spriteImg(pick) : roll ? spriteImg(roll[0]) : `<span></span>`;
       return `<button class="team-card${selected}" data-slot="${index}">${sprite}<span class="slot-meta">${meta}</span>${score}</button>`;
     })
     .join("");
@@ -815,7 +819,7 @@ function selectSlot(index) {
     spinRoll("both");
     return;
   }
-  state.candidates = state.picks[index] ? [] : [selectedRoll()].filter(Boolean);
+  state.candidates = state.picks[index] ? [] : selectedRolls();
   render();
 }
 
@@ -871,7 +875,7 @@ function updateScore() {
   const picks = state.picks.filter(Boolean);
   const score = currentScore();
   if (picks.length < slots.length) {
-    els.verdict.textContent = `${picks.length}/6 locked. Roll one Pokemon per slot and build around what you get.`;
+    els.verdict.textContent = `${picks.length}/6 locked. Choose one of three rolled Pokemon. Respins left: ${state.generationRerolls}.`;
   } else if (score >= 95) {
     els.verdict.textContent = "Elite Four Challenge cleared. That team has champion energy.";
   } else if (score >= 90) {
@@ -1037,7 +1041,7 @@ function spinRoll(kind = "both") {
 function reroll(kind) {
   if (kind === "generation" && state.generationRerolls > 0) {
     state.generationRerolls -= 1;
-    spinRoll("generation");
+    spinRoll("both");
   }
 }
 
