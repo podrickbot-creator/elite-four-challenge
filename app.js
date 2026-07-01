@@ -1,33 +1,20 @@
 const slots = [
-  { label: "Spot 1" },
-  { label: "Spot 2" },
-  { label: "Spot 3" },
-  { label: "Spot 4" },
-  { label: "Spot 5" },
-  { label: "Spot 6" },
+  { label: "Starter" },
+  { label: "HM Slave" },
+  { label: "Cave" },
+  { label: "Water" },
+  { label: "High Grass" },
+  { label: "Safari" },
 ];
 
 const generations = [1, 2, 3, 4];
-const typingRolls = [
-  "Bug",
-  "Dark",
-  "Dragon",
-  "Electric",
-  "Fairy",
-  "Fighting",
-  "Fire",
-  "Flying",
-  "Ghost",
-  "Grass",
-  "Ground",
-  "Ice",
-  "Normal",
-  "Poison",
-  "Psychic",
-  "Rock",
-  "Steel",
+const encounterRolls = [
+  "Starter",
+  "HM Slave",
+  "Cave",
   "Water",
-  "Legendary / Mythic",
+  "High Grass",
+  "Safari",
 ];
 
 const typeColors = {
@@ -68,6 +55,499 @@ const excludedPokemon = new Set([
   "Iron Boulder",
   "Iron Crown",
 ]);
+
+const encounterPools = {
+  Starter: [
+    "Bulbasaur",
+    "Ivysaur",
+    "Venusaur",
+    "Charmander",
+    "Charmeleon",
+    "Charizard",
+    "Squirtle",
+    "Wartortle",
+    "Blastoise",
+    "Chikorita",
+    "Bayleef",
+    "Meganium",
+    "Cyndaquil",
+    "Quilava",
+    "Typhlosion",
+    "Totodile",
+    "Croconaw",
+    "Feraligatr",
+    "Treecko",
+    "Grovyle",
+    "Sceptile",
+    "Torchic",
+    "Combusken",
+    "Blaziken",
+    "Mudkip",
+    "Marshtomp",
+    "Swampert",
+    "Turtwig",
+    "Grotle",
+    "Torterra",
+    "Chimchar",
+    "Monferno",
+    "Infernape",
+    "Piplup",
+    "Prinplup",
+    "Empoleon",
+  ],
+  "HM Slave": [
+    "Rattata",
+    "Raticate",
+    "Sandshrew",
+    "Sandslash",
+    "Meowth",
+    "Persian",
+    "Psyduck",
+    "Golduck",
+    "Machop",
+    "Machoke",
+    "Machamp",
+    "Farfetch'd",
+    "Krabby",
+    "Kingler",
+    "Marill",
+    "Azumarill",
+    "Sentret",
+    "Furret",
+    "Wooper",
+    "Quagsire",
+    "Zigzagoon",
+    "Linoone",
+    "Lotad",
+    "Lombre",
+    "Ludicolo",
+    "Wingull",
+    "Pelipper",
+    "Makuhita",
+    "Hariyama",
+    "Wailmer",
+    "Wailord",
+    "Corphish",
+    "Crawdaunt",
+    "Tropius",
+    "Bibarel",
+    "Bidoof",
+    "Buizel",
+    "Floatzel",
+  ],
+  Cave: [
+    "Clefairy",
+    "Clefable",
+    "Zubat",
+    "Golbat",
+    "Crobat",
+    "Paras",
+    "Parasect",
+    "Diglett",
+    "Dugtrio",
+    "Geodude",
+    "Graveler",
+    "Golem",
+    "Onix",
+    "Steelix",
+    "Cubone",
+    "Marowak",
+    "Rhyhorn",
+    "Rhydon",
+    "Rhyperior",
+    "Dunsparce",
+    "Swinub",
+    "Piloswine",
+    "Mamoswine",
+    "Sneasel",
+    "Weavile",
+    "Slugma",
+    "Magcargo",
+    "Whismur",
+    "Loudred",
+    "Exploud",
+    "Makuhita",
+    "Hariyama",
+    "Aron",
+    "Lairon",
+    "Aggron",
+    "Meditite",
+    "Medicham",
+    "Nosepass",
+    "Probopass",
+    "Sableye",
+    "Mawile",
+    "Lunatone",
+    "Solrock",
+    "Barboach",
+    "Whiscash",
+    "Baltoy",
+    "Claydol",
+    "Lileep",
+    "Cradily",
+    "Anorith",
+    "Armaldo",
+    "Shuppet",
+    "Banette",
+    "Duskull",
+    "Dusclops",
+    "Dusknoir",
+    "Snorunt",
+    "Glalie",
+    "Froslass",
+    "Bagon",
+    "Shelgon",
+    "Salamence",
+    "Beldum",
+    "Metang",
+    "Metagross",
+    "Bronzor",
+    "Bronzong",
+    "Gible",
+    "Gabite",
+    "Garchomp",
+    "Hippopotas",
+    "Hippowdon",
+  ],
+  Water: [
+    "Psyduck",
+    "Golduck",
+    "Poliwag",
+    "Poliwhirl",
+    "Poliwrath",
+    "Politoed",
+    "Tentacool",
+    "Tentacruel",
+    "Slowpoke",
+    "Slowbro",
+    "Slowking",
+    "Seel",
+    "Dewgong",
+    "Shellder",
+    "Cloyster",
+    "Krabby",
+    "Kingler",
+    "Horsea",
+    "Seadra",
+    "Kingdra",
+    "Goldeen",
+    "Seaking",
+    "Staryu",
+    "Starmie",
+    "Magikarp",
+    "Gyarados",
+    "Lapras",
+    "Chinchou",
+    "Lanturn",
+    "Marill",
+    "Azumarill",
+    "Wooper",
+    "Quagsire",
+    "Qwilfish",
+    "Corsola",
+    "Remoraid",
+    "Octillery",
+    "Mantine",
+    "Lotad",
+    "Lombre",
+    "Ludicolo",
+    "Surskit",
+    "Masquerain",
+    "Wingull",
+    "Pelipper",
+    "Carvanha",
+    "Sharpedo",
+    "Wailmer",
+    "Wailord",
+    "Barboach",
+    "Whiscash",
+    "Corphish",
+    "Crawdaunt",
+    "Feebas",
+    "Milotic",
+    "Spheal",
+    "Sealeo",
+    "Walrein",
+    "Clamperl",
+    "Huntail",
+    "Gorebyss",
+    "Relicanth",
+    "Luvdisc",
+    "Piplup",
+    "Prinplup",
+    "Empoleon",
+    "Bibarel",
+    "Buizel",
+    "Floatzel",
+    "Shellos",
+    "Gastrodon",
+    "Finneon",
+    "Lumineon",
+    "Mantyke",
+  ],
+  "High Grass": [
+    "Pidgey",
+    "Pidgeotto",
+    "Pidgeot",
+    "Rattata",
+    "Raticate",
+    "Spearow",
+    "Fearow",
+    "Ekans",
+    "Arbok",
+    "Pikachu",
+    "Raichu",
+    "Sandshrew",
+    "Sandslash",
+    "Nidoran F",
+    "Nidorina",
+    "Nidoqueen",
+    "Nidoran M",
+    "Nidorino",
+    "Nidoking",
+    "Vulpix",
+    "Ninetales",
+    "Jigglypuff",
+    "Wigglytuff",
+    "Oddish",
+    "Gloom",
+    "Vileplume",
+    "Bellossom",
+    "Meowth",
+    "Persian",
+    "Mankey",
+    "Primeape",
+    "Growlithe",
+    "Arcanine",
+    "Abra",
+    "Kadabra",
+    "Alakazam",
+    "Bellsprout",
+    "Weepinbell",
+    "Victreebel",
+    "Ponyta",
+    "Rapidash",
+    "Doduo",
+    "Dodrio",
+    "Drowzee",
+    "Hypno",
+    "Exeggcute",
+    "Exeggutor",
+    "Lickitung",
+    "Koffing",
+    "Weezing",
+    "Tangela",
+    "Mr. Mime",
+    "Eevee",
+    "Vaporeon",
+    "Jolteon",
+    "Flareon",
+    "Espeon",
+    "Umbreon",
+    "Leafeon",
+    "Glaceon",
+    "Chikorita",
+    "Bayleef",
+    "Meganium",
+    "Cyndaquil",
+    "Quilava",
+    "Typhlosion",
+    "Totodile",
+    "Croconaw",
+    "Feraligatr",
+    "Sentret",
+    "Furret",
+    "Hoothoot",
+    "Noctowl",
+    "Ledyba",
+    "Ledian",
+    "Spinarak",
+    "Ariados",
+    "Mareep",
+    "Flaaffy",
+    "Ampharos",
+    "Hoppip",
+    "Skiploom",
+    "Jumpluff",
+    "Aipom",
+    "Ambipom",
+    "Sunkern",
+    "Sunflora",
+    "Yanma",
+    "Yanmega",
+    "Murkrow",
+    "Honchkrow",
+    "Misdreavus",
+    "Mismagius",
+    "Wobbuffet",
+    "Girafarig",
+    "Gligar",
+    "Gliscor",
+    "Snubbull",
+    "Granbull",
+    "Heracross",
+    "Teddiursa",
+    "Ursaring",
+    "Houndour",
+    "Houndoom",
+    "Stantler",
+    "Treecko",
+    "Grovyle",
+    "Sceptile",
+    "Torchic",
+    "Combusken",
+    "Blaziken",
+    "Mudkip",
+    "Marshtomp",
+    "Swampert",
+    "Poochyena",
+    "Mightyena",
+    "Zigzagoon",
+    "Linoone",
+    "Wurmple",
+    "Silcoon",
+    "Beautifly",
+    "Cascoon",
+    "Dustox",
+    "Seedot",
+    "Nuzleaf",
+    "Shiftry",
+    "Taillow",
+    "Swellow",
+    "Shroomish",
+    "Breloom",
+    "Slakoth",
+    "Vigoroth",
+    "Slaking",
+    "Nincada",
+    "Ninjask",
+    "Shedinja",
+    "Skitty",
+    "Delcatty",
+    "Electrike",
+    "Manectric",
+    "Plusle",
+    "Minun",
+    "Volbeat",
+    "Illumise",
+    "Roselia",
+    "Roserade",
+    "Gulpin",
+    "Swalot",
+    "Numel",
+    "Camerupt",
+    "Spoink",
+    "Grumpig",
+    "Spinda",
+    "Cacnea",
+    "Cacturne",
+    "Swablu",
+    "Altaria",
+    "Zangoose",
+    "Seviper",
+    "Castform",
+    "Kecleon",
+    "Turtwig",
+    "Grotle",
+    "Torterra",
+    "Chimchar",
+    "Monferno",
+    "Infernape",
+    "Starly",
+    "Staravia",
+    "Staraptor",
+    "Bidoof",
+    "Bibarel",
+    "Kricketot",
+    "Kricketune",
+    "Shinx",
+    "Luxio",
+    "Luxray",
+    "Budew",
+    "Combee",
+    "Vespiquen",
+    "Pachirisu",
+    "Buneary",
+    "Lopunny",
+    "Glameow",
+    "Purugly",
+    "Stunky",
+    "Skuntank",
+    "Chatot",
+    "Carnivine",
+  ],
+  Safari: [
+    "Nidoran F",
+    "Nidorina",
+    "Nidoran M",
+    "Nidorino",
+    "Paras",
+    "Parasect",
+    "Venonat",
+    "Venomoth",
+    "Exeggcute",
+    "Exeggutor",
+    "Rhyhorn",
+    "Rhydon",
+    "Rhyperior",
+    "Chansey",
+    "Blissey",
+    "Kangaskhan",
+    "Scyther",
+    "Scizor",
+    "Pinsir",
+    "Tauros",
+    "Dratini",
+    "Dragonair",
+    "Dragonite",
+    "Pikachu",
+    "Oddish",
+    "Gloom",
+    "Doduo",
+    "Dodrio",
+    "Natu",
+    "Xatu",
+    "Aipom",
+    "Ambipom",
+    "Yanma",
+    "Yanmega",
+    "Girafarig",
+    "Pineco",
+    "Forretress",
+    "Gligar",
+    "Gliscor",
+    "Shuckle",
+    "Heracross",
+    "Phanpy",
+    "Donphan",
+    "Houndour",
+    "Houndoom",
+    "Miltank",
+    "Wobbuffet",
+    "Wooper",
+    "Quagsire",
+    "Shroomish",
+    "Breloom",
+    "Gulpin",
+    "Swalot",
+    "Bidoof",
+    "Bibarel",
+    "Starly",
+    "Staravia",
+    "Budew",
+    "Roselia",
+    "Roserade",
+    "Skorupi",
+    "Drapion",
+    "Croagunk",
+    "Toxicroak",
+    "Carnivine",
+  ],
+};
+
+const encounterNameSets = Object.fromEntries(
+  Object.entries(encounterPools).map(([encounter, names]) => [encounter, new Set(names)]),
+);
 
 let state;
 let spinTimer;
@@ -115,7 +595,7 @@ function newState() {
     selectedSlot: 0,
     picks: Array(slots.length).fill(null),
     generation: 1,
-    typing: "Fire",
+    typing: "Starter",
     generationRerolls: 1,
     typingRerolls: 1,
     candidates: [],
@@ -133,37 +613,39 @@ function selectedSlot() {
   return slots[state.selectedSlot];
 }
 
+function currentEncounter() {
+  return selectedSlot().label;
+}
+
 function usedNames() {
   return new Set(state.picks.filter(Boolean).map((pick) => pick.name));
 }
 
-function matchesTyping(monster, typing) {
-  if (typing === "Legendary / Mythic") return monster.legendary;
-  return !monster.legendary && monster.types.includes(typing);
+function matchesEncounter(monster, encounter) {
+  return Boolean(encounterNameSets[encounter]?.has(monster.name));
 }
 
 function candidatePool() {
   const used = usedNames();
-  return poolFor(state.generation, state.typing, used);
+  return poolFor(state.generation, currentEncounter(), used);
 }
 
-function poolFor(generation, typing, used) {
+function poolFor(generation, encounter, used) {
   return monsters.filter(
     (monster) =>
       !excludedPokemon.has(monster.name) &&
       !used.has(monster.name) &&
       monster.generation === generation &&
-      matchesTyping(monster, typing),
+      matchesEncounter(monster, encounter),
   );
 }
 
 function validCombos(used = usedNames()) {
   const combos = [];
   generations.forEach((generation) => {
-    typingRolls.forEach((typing) => {
-      const pool = poolFor(generation, typing, used);
-      if (pool.length > 0) combos.push({ generation, typing, count: pool.length });
-    });
+    const encounter = currentEncounter();
+    const pool = poolFor(generation, encounter, used);
+    if (pool.length > 0) combos.push({ generation, typing: encounter, count: pool.length });
   });
   return combos;
 }
@@ -187,18 +669,20 @@ function pickCandidates() {
 
 function draftScore(monster) {
   const exactBonus = 40;
-  const typingBonus = state.typing === "Legendary / Mythic" ? 35 : 24;
+  const encounterBonus = currentEncounter() === "Starter" ? 34 : 24;
   const multiTypeBonus = monster.types.length > 1 ? 8 : 0;
-  return Math.round(monster.bst / 7 + exactBonus + typingBonus + multiTypeBonus);
+  return Math.round(monster.bst / 7 + exactBonus + encounterBonus + multiTypeBonus);
 }
 
 function render() {
   els.generation.textContent = `Gen ${state.generation}`;
-  els.typing.textContent = state.typing;
+  state.typing = currentEncounter();
+  els.typing.textContent = currentEncounter();
   els.generationRerollCount.textContent = `${state.generationRerolls} reroll${state.generationRerolls === 1 ? "" : "s"}`;
-  els.typingRerollCount.textContent = `${state.typingRerolls} reroll${state.typingRerolls === 1 ? "" : "s"}`;
+  els.typingRerollCount.textContent = "slot pool";
   els.rerollGeneration.disabled = state.generationRerolls === 0;
-  els.rerollTyping.disabled = state.typingRerolls === 0;
+  els.rerollTyping.disabled = true;
+  els.rerollTyping.hidden = true;
   els.slotName.textContent = selectedSlot().label;
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
@@ -216,7 +700,7 @@ function renderSettings() {
 
 function renderCandidates() {
   if (state.candidates.length === 0) {
-    els.candidateGrid.innerHTML = `<div class="monster-card" style="grid-column: 1 / -1;"><h3>No exact picks available</h3><p class="verdict">This roll has no unused ${state.typing} Pokemon from Gen ${state.generation}. Use a reroll or start a new run.</p></div>`;
+    els.candidateGrid.innerHTML = `<div class="monster-card" style="grid-column: 1 / -1;"><h3>No picks available</h3><p class="verdict">This roll has no unused ${currentEncounter()} Pokemon from Gen ${state.generation}. Use your generation reroll or start a new run.</p></div>`;
     return;
   }
 
@@ -238,12 +722,13 @@ function cardTemplate(monster) {
           </div>
         </div>
         <div class="tags">
-          ${monster.legendary ? `<span class="tag">Legendary</span>` : ""}
-          ${monster.types.map((type) => `<span class="tag">${type}</span>`).join("")}
-          <span class="tag">Gen ${monster.generation}</span>
-        </div>
-      </button>
-    `;
+        ${monster.legendary ? `<span class="tag">Legendary</span>` : ""}
+        ${monster.types.map((type) => `<span class="tag">${type}</span>`).join("")}
+        <span class="tag">Gen ${monster.generation}</span>
+        <span class="tag">${currentEncounter()}</span>
+      </div>
+    </button>
+  `;
   }
   return `
     <button class="monster-card" data-name="${monster.name}" style="--type-color: ${color}">
@@ -258,6 +743,7 @@ function cardTemplate(monster) {
         ${monster.legendary ? `<span class="tag">Legendary</span>` : ""}
         ${monster.types.map((type) => `<span class="tag">${type}</span>`).join("")}
         <span class="tag">Gen ${monster.generation}</span>
+        <span class="tag">${currentEncounter()}</span>
       </div>
       <div class="stats compact-stats">
         ${stat("HP", monster.stats.hp, 160)}
@@ -287,8 +773,8 @@ function renderTeam() {
       const selected = index === state.selectedSlot ? " selected" : "";
       const score = pick ? `<span class="slot-score">${pick.bst}</span>` : `<span class="slot-score">+</span>`;
       const meta = pick
-        ? `<strong>${pick.name}</strong><span>${pick.types.join(" / ")} · Gen ${pick.generation}</span>`
-        : `<strong>${slot.label}</strong><span>Click to draft this slot</span>`;
+        ? `<strong>${pick.name}</strong><span>${slot.label} · ${pick.types.join(" / ")} · Gen ${pick.generation}</span>`
+        : `<strong>${slot.label}</strong><span>Click to draft this encounter</span>`;
       const sprite = pick ? spriteImg(pick) : `<span></span>`;
       return `<button class="team-card${selected}" data-slot="${index}">${sprite}<span class="slot-meta">${meta}</span>${score}</button>`;
     })
@@ -308,7 +794,7 @@ function selectSlot(index) {
 function draft(name) {
   const pick = state.candidates.find((monster) => monster.name === name);
   if (!pick) return;
-  state.picks[state.selectedSlot] = pick;
+  state.picks[state.selectedSlot] = { ...pick, encounter: currentEncounter() };
   const nextOpen = state.picks.findIndex((slotPick) => !slotPick);
   if (nextOpen !== -1) {
     state.selectedSlot = nextOpen;
@@ -395,7 +881,7 @@ function aggregateStats() {
 function teamShareText(score, rank) {
   const team = state.picks
     .filter(Boolean)
-    .map((pick, index) => `${index + 1}. ${pick.name}`)
+    .map((pick, index) => `${index + 1}. ${pick.encounter || slots[index].label}: ${pick.name}`)
     .join("\n");
   return `Elite Four Challenge\nGRADE - ${rank.grade}\n${rank.title.toUpperCase()}\nProjected win rate: ${score}%\n\n${team}`;
 }
@@ -420,7 +906,7 @@ function showRankModal() {
           ${spriteImg(pick)}
           <span>
             <strong>${index + 1}. ${pick.name}</strong>
-            <span>${pick.types.join(" / ")} · Gen ${pick.generation} · BST ${pick.bst}</span>
+            <span>${pick.encounter || slots[index].label} · ${pick.types.join(" / ")} · Gen ${pick.generation} · BST ${pick.bst}</span>
           </span>
         </div>
       `,
@@ -464,14 +950,14 @@ function setSpinState(active) {
   els.spinOverlay.classList.toggle("open", active);
   els.spinOverlay.setAttribute("aria-hidden", active ? "false" : "true");
   els.rerollGeneration.disabled = active || state.generationRerolls === 0;
-  els.rerollTyping.disabled = active || state.typingRerolls === 0;
+  els.rerollTyping.disabled = true;
   els.candidateGrid.style.opacity = active ? "0.42" : "1";
   els.candidateGrid.style.pointerEvents = active ? "none" : "auto";
 }
 
 function rerollGenerationValue() {
   const options = generations.filter(
-    (generation) => generation !== state.generation && poolFor(generation, state.typing, usedNames()).length > 0,
+    (generation) => generation !== state.generation && poolFor(generation, currentEncounter(), usedNames()).length > 0,
   );
   const fallback = generations.filter((generation) => generation !== state.generation);
   const next = sample(options.length ? options : fallback);
@@ -479,16 +965,13 @@ function rerollGenerationValue() {
 }
 
 function rerollTypingValue() {
-  const options = typingRolls.filter(
-    (typing) => typing !== state.typing && poolFor(state.generation, typing, usedNames()).length > 0,
-  );
-  state.typing = sample(options.length ? options : typingRolls.filter((typing) => typing !== state.typing));
+  state.typing = currentEncounter();
 }
 
 function spinRoll(kind = "both") {
   window.clearTimeout(spinTimer);
   els.spinGeneration.textContent = `Gen ${state.generation}`;
-  els.spinTyping.textContent = state.typing;
+  els.spinTyping.textContent = currentEncounter();
   setSpinState(true);
   const spinDelays = [95, 95, 100, 105, 110, 120, 135, 150, 170, 195, 225, 260, 310, 370];
   let ticks = 0;
@@ -499,7 +982,7 @@ function spinRoll(kind = "both") {
       els.spinGeneration.textContent = `Gen ${sample(generations)}`;
     }
     if (kind === "both" || kind === "typing") {
-      els.spinTyping.textContent = sample(typingRolls);
+      els.spinTyping.textContent = sample(encounterRolls);
     }
     if (ticks >= spinDelays.length) {
       window.clearTimeout(spinTimer);
@@ -507,7 +990,8 @@ function spinRoll(kind = "both") {
       if (kind === "generation") rerollGenerationValue();
       if (kind === "typing") rerollTypingValue();
       els.spinGeneration.textContent = `Gen ${state.generation}`;
-      els.spinTyping.textContent = state.typing;
+      state.typing = currentEncounter();
+      els.spinTyping.textContent = currentEncounter();
       window.setTimeout(() => {
         pickCandidates();
         render();
@@ -526,10 +1010,6 @@ function reroll(kind) {
   if (kind === "generation" && state.generationRerolls > 0) {
     state.generationRerolls -= 1;
     spinRoll("generation");
-  }
-  if (kind === "typing" && state.typingRerolls > 0) {
-    state.typingRerolls -= 1;
-    spinRoll("typing");
   }
 }
 
