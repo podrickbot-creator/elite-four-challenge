@@ -402,6 +402,14 @@ h2 {
   gap: 8px;
 }
 
+.choice-count {
+  margin: 0 0 8px;
+  color: var(--gold);
+  font-size: 0.85rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .candidate-grid.three-roll {
   align-content: start;
 }

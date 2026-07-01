@@ -566,6 +566,7 @@ const els = {
   slotName: document.querySelector("#slotName"),
   filledCount: document.querySelector("#filledCount"),
   candidateGrid: document.querySelector("#candidateGrid"),
+  choiceCount: document.querySelector("#choiceCount"),
   teamGrid: document.querySelector("#teamGrid"),
   reset: document.querySelector("#resetGame"),
   verdict: document.querySelector("#verdict"),
@@ -716,6 +717,7 @@ function renderSettings() {
 function renderCandidates() {
   const draftedPick = state.picks[state.selectedSlot];
   if (draftedPick) {
+    els.choiceCount.textContent = "Locked";
     els.candidateGrid.innerHTML = `<div class="monster-card locked-roll" style="grid-column: 1 / -1; --type-color: ${
       typeColors[draftedPick.types[0]] || "#7f8790"
     }">${cardInnerTemplate(draftedPick)}<span class="rating">Locked</span></div>`;
@@ -723,10 +725,12 @@ function renderCandidates() {
   }
 
   if (state.candidates.length === 0) {
+    els.choiceCount.textContent = "No options";
     els.candidateGrid.innerHTML = `<div class="monster-card" style="grid-column: 1 / -1;"><h3>No picks available</h3><p class="verdict">This roll has no unused ${currentEncounter()} Pokemon from Gen ${state.generation}. Use your generation reroll or start a new run.</p></div>`;
     return;
   }
 
+  els.choiceCount.textContent = `Choose 1 of ${state.candidates.length}`;
   els.candidateGrid.innerHTML = state.candidates.map(cardTemplate).join("");
   els.candidateGrid.querySelectorAll("button").forEach((button) => {
     button.addEventListener("click", () => draft(button.dataset.name));
