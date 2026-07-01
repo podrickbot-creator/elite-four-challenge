@@ -594,6 +594,7 @@ function newState() {
   const nextState = {
     selectedSlot: 0,
     picks: Array(slots.length).fill(null),
+    slotRolls: Array(slots.length).fill(null),
     generation: 1,
     typing: "Starter",
     generationRerolls: 1,
@@ -618,7 +619,13 @@ function currentEncounter() {
 }
 
 function usedNames() {
-  return new Set(state.picks.filter(Boolean).map((pick) => pick.name));
+  return new Set([
+    ...state.picks.filter(Boolean).map((pick) => pick.name),
+    ...state.slotRolls
+      .filter(Boolean)
+      .filter((roll, index) => index !== state.selectedSlot && !state.picks[index])
+      .map((roll) => roll.name),
+  ]);
 }
 
 function matchesEncounter(monster, encounter) {
@@ -661,10 +668,13 @@ function rollFreshConstraints() {
 
 function pickCandidates() {
   const candidates = candidatePool().map((monster) => ({ ...monster, draftScore: draftScore(monster) }));
-  state.candidates =
-    state.mode === "expert"
-      ? candidates.sort((a, b) => a.name.localeCompare(b.name))
-      : candidates.sort((a, b) => b.draftScore - a.draftScore);
+  const rolled = sample(candidates);
+  state.slotRolls[state.selectedSlot] = rolled || null;
+  state.candidates = rolled ? [rolled] : [];
+}
+
+function selectedRoll() {
+  return state.slotRolls[state.selectedSlot];
 }
 
 function draftScore(monster) {
@@ -686,6 +696,7 @@ function render() {
   els.slotName.textContent = selectedSlot().label;
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
+  els.candidateGrid.classList.add("single-roll");
   renderSettings();
   renderCandidates();
   renderTeam();
@@ -699,6 +710,14 @@ function renderSettings() {
 }
 
 function renderCandidates() {
+  const draftedPick = state.picks[state.selectedSlot];
+  if (draftedPick) {
+    els.candidateGrid.innerHTML = `<div class="monster-card locked-roll" style="grid-column: 1 / -1; --type-color: ${
+      typeColors[draftedPick.types[0]] || "#7f8790"
+    }">${cardInnerTemplate(draftedPick)}<span class="rating">Locked</span></div>`;
+    return;
+  }
+
   if (state.candidates.length === 0) {
     els.candidateGrid.innerHTML = `<div class="monster-card" style="grid-column: 1 / -1;"><h3>No picks available</h3><p class="verdict">This roll has no unused ${currentEncounter()} Pokemon from Gen ${state.generation}. Use your generation reroll or start a new run.</p></div>`;
     return;
@@ -712,49 +731,50 @@ function renderCandidates() {
 
 function cardTemplate(monster) {
   const color = monster.legendary ? typeColors.Legendary : typeColors[monster.types[0]] || "#7f8790";
+  const buttonLabel = state.mode === "expert" ? "Lock In" : `Lock In ${monster.draftScore}`;
   if (state.mode === "expert") {
     return `
       <button class="monster-card expert-card" data-name="${monster.name}" style="--type-color: ${color}">
-        <div class="monster-name-line">
-          ${spriteImg(monster)}
-          <div class="monster-name">
-            <h3>${monster.name}</h3>
-          </div>
-        </div>
-        <div class="tags">
-        ${monster.legendary ? `<span class="tag">Legendary</span>` : ""}
-        ${monster.types.map((type) => `<span class="tag">${type}</span>`).join("")}
-        <span class="tag">Gen ${monster.generation}</span>
-        <span class="tag">${currentEncounter()}</span>
-      </div>
+        ${cardInnerTemplate(monster)}
+        <span class="rating">${buttonLabel}</span>
     </button>
   `;
   }
   return `
     <button class="monster-card" data-name="${monster.name}" style="--type-color: ${color}">
-      <div class="monster-name-line">
-        ${spriteImg(monster)}
-        <div class="monster-name">
-          <h3>${monster.name}</h3>
-          <span>BST ${monster.bst}</span>
-        </div>
-      </div>
-      <div class="tags">
-        ${monster.legendary ? `<span class="tag">Legendary</span>` : ""}
-        ${monster.types.map((type) => `<span class="tag">${type}</span>`).join("")}
-        <span class="tag">Gen ${monster.generation}</span>
-        <span class="tag">${currentEncounter()}</span>
-      </div>
-      <div class="stats compact-stats">
-        ${stat("HP", monster.stats.hp, 160)}
-        ${stat("Atk", monster.stats.attack, 160)}
-        ${stat("Def", monster.stats.defense, 160)}
-        ${stat("SpA", monster.stats.specialAttack, 160)}
-        ${stat("SpD", monster.stats.specialDefense, 160)}
-        ${stat("Spe", monster.stats.speed, 160)}
-      </div>
-      <span class="rating">${monster.draftScore}</span>
+      ${cardInnerTemplate(monster)}
+      <span class="rating">${buttonLabel}</span>
     </button>
+  `;
+}
+
+function cardInnerTemplate(monster) {
+  return `
+    <div class="monster-name-line">
+      ${spriteImg(monster)}
+      <div class="monster-name">
+        <h3>${monster.name}</h3>
+        ${state.mode === "expert" ? "" : `<span>BST ${monster.bst}</span>`}
+      </div>
+    </div>
+    <div class="tags">
+      ${monster.legendary ? `<span class="tag">Legendary</span>` : ""}
+      ${monster.types.map((type) => `<span class="tag">${type}</span>`).join("")}
+      <span class="tag">Gen ${monster.generation}</span>
+      <span class="tag">${monster.encounter || currentEncounter()}</span>
+    </div>
+    ${
+      state.mode === "expert"
+        ? ""
+        : `<div class="stats compact-stats">
+            ${stat("HP", monster.stats.hp, 160)}
+            ${stat("Atk", monster.stats.attack, 160)}
+            ${stat("Def", monster.stats.defense, 160)}
+            ${stat("SpA", monster.stats.specialAttack, 160)}
+            ${stat("SpD", monster.stats.specialDefense, 160)}
+            ${stat("Spe", monster.stats.speed, 160)}
+          </div>`
+    }
   `;
 }
 
@@ -772,10 +792,13 @@ function renderTeam() {
       const pick = state.picks[index];
       const selected = index === state.selectedSlot ? " selected" : "";
       const score = pick ? `<span class="slot-score">${pick.bst}</span>` : `<span class="slot-score">+</span>`;
+      const roll = state.slotRolls[index];
       const meta = pick
         ? `<strong>${pick.name}</strong><span>${slot.label} · ${pick.types.join(" / ")} · Gen ${pick.generation}</span>`
-        : `<strong>${slot.label}</strong><span>Click to draft this encounter</span>`;
-      const sprite = pick ? spriteImg(pick) : `<span></span>`;
+        : roll
+          ? `<strong>${slot.label}</strong><span>Rolled ${roll.name}</span>`
+          : `<strong>${slot.label}</strong><span>Click to roll this encounter</span>`;
+      const sprite = pick ? spriteImg(pick) : roll ? spriteImg(roll) : `<span></span>`;
       return `<button class="team-card${selected}" data-slot="${index}">${sprite}<span class="slot-meta">${meta}</span>${score}</button>`;
     })
     .join("");
@@ -787,7 +810,12 @@ function renderTeam() {
 
 function selectSlot(index) {
   state.selectedSlot = index;
-  pickCandidates();
+  const needsRoll = !state.picks[index] && !state.slotRolls[index];
+  if (needsRoll) {
+    spinRoll("both");
+    return;
+  }
+  state.candidates = state.picks[index] ? [] : [selectedRoll()].filter(Boolean);
   render();
 }
 
@@ -843,7 +871,7 @@ function updateScore() {
   const picks = state.picks.filter(Boolean);
   const score = currentScore();
   if (picks.length < slots.length) {
-    els.verdict.textContent = `${picks.length}/6 drafted. Click any squad slot to draft out of order.`;
+    els.verdict.textContent = `${picks.length}/6 locked. Roll one Pokemon per slot and build around what you get.`;
   } else if (score >= 95) {
     els.verdict.textContent = "Elite Four Challenge cleared. That team has champion energy.";
   } else if (score >= 90) {
