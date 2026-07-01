@@ -598,7 +598,7 @@ function newState() {
     generation: 1,
     typing: "Tall Grass",
     generationRerolls: 2,
-    typingRerolls: 1,
+    typingRerolls: 2,
     candidates: [],
     mode: previousSettings.mode,
     started: false,
@@ -695,10 +695,13 @@ function render() {
   state.typing = currentEncounter();
   els.typing.textContent = currentEncounter();
   els.generationRerollCount.textContent = `${state.generationRerolls} respin${state.generationRerolls === 1 ? "" : "s"}`;
-  els.typingRerollCount.textContent = state.selectedSlot === slots.length - 1 ? "legendary roll" : "biome roll";
+  els.typingRerollCount.textContent =
+    state.selectedSlot === slots.length - 1
+      ? "legendary roll"
+      : `${state.typingRerolls} reroll${state.typingRerolls === 1 ? "" : "s"}`;
   els.rerollGeneration.disabled = state.generationRerolls === 0 || Boolean(state.picks[state.selectedSlot]);
-  els.rerollTyping.disabled = true;
-  els.rerollTyping.hidden = true;
+  els.rerollTyping.disabled = state.selectedSlot === slots.length - 1 || state.typingRerolls === 0 || Boolean(state.picks[state.selectedSlot]);
+  els.rerollTyping.hidden = false;
   els.slotName.textContent = `Slot ${selectedSlot().label}`;
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
@@ -942,7 +945,8 @@ function setSpinState(active) {
   els.spinOverlay.classList.toggle("open", active);
   els.spinOverlay.setAttribute("aria-hidden", active ? "false" : "true");
   els.rerollGeneration.disabled = active || state.generationRerolls === 0;
-  els.rerollTyping.disabled = true;
+  els.rerollTyping.disabled =
+    active || state.selectedSlot === slots.length - 1 || state.typingRerolls === 0 || Boolean(state.picks[state.selectedSlot]);
   els.candidateGrid.style.opacity = active ? "0.42" : "1";
   els.candidateGrid.style.pointerEvents = active ? "none" : "auto";
 }
@@ -957,7 +961,16 @@ function rerollGenerationValue() {
 }
 
 function rerollTypingValue() {
-  state.typing = currentEncounter();
+  const current = currentEncounter();
+  const used = usedNames();
+  const options = rollableBiomes().filter(
+    (biome) => biome !== current && poolFor(state.generation, biome, used).length >= 3,
+  );
+  const fallback = rollableBiomes().filter((biome) => biome !== current);
+  const next = sample(options.length ? options : fallback);
+  if (!next) return;
+  state.typing = next;
+  state.slotBiomes[state.selectedSlot] = next;
 }
 
 function spinRoll(kind = "both") {
@@ -1002,6 +1015,15 @@ function reroll(kind) {
   if (kind === "generation" && state.generationRerolls > 0 && !state.picks[state.selectedSlot]) {
     state.generationRerolls -= 1;
     spinRoll("both");
+  }
+  if (
+    kind === "typing" &&
+    state.typingRerolls > 0 &&
+    state.selectedSlot !== slots.length - 1 &&
+    !state.picks[state.selectedSlot]
+  ) {
+    state.typingRerolls -= 1;
+    spinRoll("typing");
   }
 }
 
