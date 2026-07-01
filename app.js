@@ -734,9 +734,13 @@ function renderCandidates() {
     return;
   }
 
-  els.choiceCount.textContent = `Choose 1 of ${state.candidates.length}`;
-  els.candidateGrid.innerHTML = state.candidates.map(cardTemplate).join("");
+  els.choiceCount.textContent = `Choose 1 of ${state.candidates.length} or Mystery Box`;
+  els.candidateGrid.innerHTML = `${state.candidates.map(cardTemplate).join("")}${mysteryBoxTemplate()}`;
   els.candidateGrid.querySelectorAll("button").forEach((button) => {
+    if (button.dataset.action === "mystery") {
+      button.addEventListener("click", draftMystery);
+      return;
+    }
     button.addEventListener("click", () => draft(button.dataset.name));
   });
 }
@@ -759,6 +763,21 @@ function cardInnerTemplate(monster) {
         <h3>${monster.name}</h3>
       </div>
     </div>
+  `;
+}
+
+function mysteryBoxTemplate() {
+  return `
+    <button class="monster-card mystery-card" data-action="mystery">
+      <div class="mystery-copy">
+        <span class="mystery-icon">?</span>
+        <div>
+          <h3>Mystery Box</h3>
+          <p>Roll blind and lock it in</p>
+        </div>
+      </div>
+      <span class="rating">Gamble</span>
+    </button>
   `;
 }
 
@@ -802,6 +821,16 @@ function selectSlot(index) {
 function draft(name) {
   const pick = state.candidates.find((monster) => monster.name === name);
   if (!pick) return;
+  lockPick(pick);
+}
+
+function draftMystery() {
+  const pick = sample(candidatePool());
+  if (!pick) return;
+  lockPick(pick);
+}
+
+function lockPick(pick) {
   state.picks[state.selectedSlot] = { ...pick, encounter: currentEncounter() };
   const nextOpen = state.picks.findIndex((slotPick) => !slotPick);
   if (nextOpen !== -1) {
