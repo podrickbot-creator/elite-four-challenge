@@ -1342,6 +1342,7 @@ function renderArenaDraftTeam() {
     els.arenaDraftTeam.innerHTML = "";
     return;
   }
+  ensureFullArenaOpponentTeam();
   els.arenaDraftTeam.innerHTML = `
     <div class="arena-board-header">
       <div class="arena-record">
@@ -1582,6 +1583,24 @@ function buildArenaOpponentTeam() {
   const selectedNames = new Set(selected.map((monster) => monster.name));
   const fallback = shuffle(eligible.filter((monster) => !selectedNames.has(monster.name)));
   return [...selected, ...fallback].slice(0, arenaOpponentSize);
+}
+
+function ensureFullArenaOpponentTeam() {
+  if (state.opponentTeam.length >= arenaOpponentSize) return;
+  const used = new Set([
+    ...state.opponentTeam.map((pick) => pick.name),
+    ...state.picks.filter(Boolean).map((pick) => pick.name),
+  ]);
+  const fill = monsters
+    .filter(
+      (monster) =>
+        !excludedPokemon.has(monster.name) &&
+        !used.has(monster.name) &&
+        !monster.legendary &&
+        generations.includes(monster.generation),
+    )
+    .sort((a, b) => b.bst - a.bst);
+  state.opponentTeam = [...state.opponentTeam, ...shuffle(fill)].slice(0, arenaOpponentSize);
 }
 
 function resetArenaDraft() {

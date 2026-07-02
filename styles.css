@@ -734,16 +734,6 @@ h2 {
   border-color: var(--screen);
 }
 
-.bench-label {
-  display: grid;
-  place-items: center;
-  width: 76px;
-  height: 76px;
-  color: #87919d;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-}
-
 .team-card .slot-meta {
   display: grid;
   gap: 4px;
