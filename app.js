@@ -1242,6 +1242,7 @@ function render() {
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
   els.candidateGrid.classList.add("three-roll");
+  els.candidateGrid.classList.toggle("hidden", isArenaMode());
   renderSettings();
   renderCandidates();
   renderTeam();
@@ -1280,12 +1281,7 @@ function renderCandidates() {
 
   if (isArenaMode()) {
     els.choiceCount.textContent = `Arena pick ${state.selectedSlot + 1}: choose 1 of ${state.candidates.length}`;
-    els.candidateGrid.innerHTML = state.candidates.map(arenaCardTemplate).join("");
-    els.candidateGrid.classList.add("rolling-in");
-    window.setTimeout(() => els.candidateGrid.classList.remove("rolling-in"), 420);
-    els.candidateGrid.querySelectorAll("button").forEach((button) => {
-      button.addEventListener("click", () => draft(button.dataset.name));
-    });
+    els.candidateGrid.innerHTML = "";
     return;
   }
 
@@ -1306,16 +1302,6 @@ function cardTemplate(monster) {
     <button class="monster-card" data-name="${monster.name}" style="--type-color: ${color}">
       ${cardInnerTemplate(monster)}
       <span class="rating">Lock In</span>
-    </button>
-  `;
-}
-
-function arenaCardTemplate(monster) {
-  const color = monster.legendary ? typeColors.Legendary : typeColors[monster.types[0]] || "#7f8790";
-  return `
-    <button class="monster-card arena-choice-card" data-name="${monster.name}" style="--type-color: ${color}">
-      ${spriteImg(monster)}
-      <h3>${monster.name}</h3>
     </button>
   `;
 }
@@ -1412,10 +1398,27 @@ function renderArenaDraftTeam() {
         ${slots
           .map((slot, index) => {
             const pick = state.picks[index];
+            const candidate = !pick && index >= state.selectedSlot ? state.candidates[index - state.selectedSlot] : null;
+            if (pick) {
+              return `
+                <div class="arena-matchup-slot your-slot filled">
+                  ${spriteImg(pick)}
+                  <small>${pick.name}</small>
+                </div>
+              `;
+            }
+            if (candidate) {
+              return `
+                <button class="arena-matchup-slot your-slot choice-slot${index === state.selectedSlot ? " current" : ""}" type="button" data-name="${candidate.name}">
+                  ${spriteImg(candidate)}
+                  <small>${candidate.name}</small>
+                </button>
+              `;
+            }
             return `
-              <div class="arena-matchup-slot your-slot${pick ? " filled" : ""}${index === state.selectedSlot ? " current" : ""}">
-                ${pick ? spriteImg(pick) : `<span>${index + 1}</span>`}
-                <small>${pick ? pick.name : index === state.selectedSlot ? "Picking" : "Open"}</small>
+              <div class="arena-matchup-slot your-slot">
+                <span>${index + 1}</span>
+                <small>Open</small>
               </div>
             `;
           })
@@ -1427,16 +1430,20 @@ function renderArenaDraftTeam() {
   if (rerollButton) {
     rerollButton.addEventListener("click", rerollArenaChoices);
   }
+  els.arenaDraftTeam.querySelectorAll(".choice-slot").forEach((button) => {
+    button.addEventListener("click", () => draft(button.dataset.name));
+  });
 }
 
 function rerollArenaChoices() {
   if (!isArenaMode() || state.arenaRerolls === 0 || state.picks[state.selectedSlot]) return;
   state.arenaRerolls -= 1;
   state.slotRolls[state.selectedSlot] = null;
-  els.candidateGrid.classList.add("rolling-in");
+  els.arenaDraftTeam.classList.add("rolling-in");
   window.setTimeout(() => {
     rollArenaChoices();
     render();
+    window.setTimeout(() => els.arenaDraftTeam.classList.remove("rolling-in"), 420);
   }, 280);
 }
 

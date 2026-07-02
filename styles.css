@@ -749,6 +749,7 @@ h2 {
 }
 
 .arena-matchup-slot {
+  appearance: none;
   display: grid;
   align-content: center;
   place-items: center;
@@ -758,7 +759,9 @@ h2 {
   border: 3px solid rgba(244, 255, 232, 0.22);
   background: #18213a;
   color: var(--muted);
+  cursor: default;
   font-weight: 950;
+  font-family: inherit;
   text-align: center;
   min-width: 0;
 }
@@ -802,6 +805,22 @@ h2 {
 
 .your-slot.filled {
   border-color: var(--screen);
+}
+
+.choice-slot {
+  border-color: var(--gold);
+  cursor: pointer;
+}
+
+.choice-slot:hover,
+.choice-slot:focus-visible {
+  background: #263653;
+  outline: 0;
+  transform: translateY(-2px);
+}
+
+.arena-draft-team.rolling-in .choice-slot {
+  animation: rollCardIn 420ms steps(4, end);
 }
 
 .team-card .slot-meta {
