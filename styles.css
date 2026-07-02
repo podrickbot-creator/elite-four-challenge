@@ -812,6 +812,18 @@ h2 {
   cursor: pointer;
 }
 
+.rolling-slot {
+  border-color: var(--gold);
+  background:
+    linear-gradient(180deg, rgba(255, 203, 5, 0.08), rgba(49, 91, 162, 0.16)),
+    #18213a;
+  overflow: hidden;
+}
+
+.rolling-slot .pokemon-sprite {
+  animation: slotSpriteRoll 230ms steps(3, end) infinite;
+}
+
 .choice-slot:hover,
 .choice-slot:focus-visible {
   background: #263653;
@@ -821,6 +833,23 @@ h2 {
 
 .arena-draft-team.rolling-in .choice-slot {
   animation: rollCardIn 420ms steps(4, end);
+}
+
+@keyframes slotSpriteRoll {
+  0% {
+    transform: translateY(-12px);
+    opacity: 0.35;
+  }
+
+  55% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(18px);
+    opacity: 0.45;
+  }
 }
 
 .team-card .slot-meta {

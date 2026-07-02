@@ -1013,6 +1013,8 @@ const encounterNameSets = Object.fromEntries(
 
 let state;
 let spinTimer;
+let arenaRollTimer;
+let arenaRollFinishTimer;
 
 const els = {
   generation: document.querySelector("#generationConstraint"),
@@ -1074,6 +1076,8 @@ function newState() {
     arenaBattle: 1,
     arenaRerolls: 2,
     arenaLastResult: null,
+    arenaRolling: false,
+    arenaRollingFrames: [],
     mode: previousSettings.mode,
     started: false,
   };
@@ -1210,6 +1214,54 @@ function rollArenaChoices() {
   state.candidates = rolled;
 }
 
+function arenaRollingPool() {
+  const used = usedNames();
+  const primary = arenaCandidatePool();
+  const usedPrimary = new Set(primary.map((monster) => monster.name));
+  const fallback = monsters.filter(
+    (monster) =>
+      !excludedPokemon.has(monster.name) &&
+      !monster.legendary &&
+      generations.includes(monster.generation) &&
+      !used.has(monster.name) &&
+      !usedPrimary.has(monster.name),
+  );
+  return [...primary, ...fallback];
+}
+
+function updateArenaRollingFrames(pool = arenaRollingPool()) {
+  const count = Math.max(1, slots.length - state.selectedSlot);
+  const source = pool.length ? pool : monsters.filter((monster) => !excludedPokemon.has(monster.name));
+  state.arenaRollingFrames = Array.from({ length: count }, () => sample(source)).filter(Boolean);
+}
+
+function startArenaChoiceRoll({ spendReroll = false } = {}) {
+  if (!isArenaMode() || state.arenaRolling || state.picks[state.selectedSlot]) return;
+  if (spendReroll) {
+    if (state.arenaRerolls === 0) return;
+    state.arenaRerolls -= 1;
+  }
+  window.clearInterval(arenaRollTimer);
+  window.clearTimeout(arenaRollFinishTimer);
+  state.slotRolls[state.selectedSlot] = null;
+  state.candidates = [];
+  state.arenaRolling = true;
+  const pool = arenaRollingPool();
+  updateArenaRollingFrames(pool);
+  render();
+  arenaRollTimer = window.setInterval(() => {
+    updateArenaRollingFrames(pool);
+    renderArenaDraftTeam();
+  }, 115);
+  arenaRollFinishTimer = window.setTimeout(() => {
+    window.clearInterval(arenaRollTimer);
+    rollArenaChoices();
+    state.arenaRolling = false;
+    state.arenaRollingFrames = [];
+    render();
+  }, 980);
+}
+
 function selectedRolls() {
   return state.slotRolls[state.selectedSlot] || [];
 }
@@ -1266,7 +1318,7 @@ function renderCandidates() {
     return;
   }
 
-  if (isArenaMode() && state.candidates.length === 0) {
+  if (isArenaMode() && !state.arenaRolling && state.candidates.length === 0) {
     rollArenaChoices();
   }
 
@@ -1280,7 +1332,9 @@ function renderCandidates() {
   }
 
   if (isArenaMode()) {
-    els.choiceCount.textContent = `Arena pick ${state.selectedSlot + 1}: choose 1 of ${state.candidates.length}`;
+    els.choiceCount.textContent = state.arenaRolling
+      ? `Arena pick ${state.selectedSlot + 1}: rolling...`
+      : `Arena pick ${state.selectedSlot + 1}: choose 1 of ${state.candidates.length}`;
     els.candidateGrid.innerHTML = "";
     return;
   }
@@ -1374,7 +1428,7 @@ function renderArenaDraftTeam() {
         <strong>${state.arenaWins}-0</strong>
         <span>12 wins needed</span>
       </div>
-      <button class="arena-reroll-button" type="button" ${state.arenaRerolls === 0 || Boolean(state.picks[state.selectedSlot]) ? "disabled" : ""}>
+      <button class="arena-reroll-button" type="button" ${state.arenaRerolls === 0 || state.arenaRolling || Boolean(state.picks[state.selectedSlot]) ? "disabled" : ""}>
         Reroll ${state.arenaRerolls}
       </button>
     </div>
@@ -1398,12 +1452,24 @@ function renderArenaDraftTeam() {
         ${slots
           .map((slot, index) => {
             const pick = state.picks[index];
+            const rollingPick =
+              state.arenaRolling && !pick && index >= state.selectedSlot
+                ? state.arenaRollingFrames[index - state.selectedSlot]
+                : null;
             const candidate = !pick && index >= state.selectedSlot ? state.candidates[index - state.selectedSlot] : null;
             if (pick) {
               return `
                 <div class="arena-matchup-slot your-slot filled">
                   ${spriteImg(pick)}
                   <small>${pick.name}</small>
+                </div>
+              `;
+            }
+            if (rollingPick) {
+              return `
+                <div class="arena-matchup-slot your-slot rolling-slot${index === state.selectedSlot ? " current" : ""}">
+                  ${spriteImg(rollingPick)}
+                  <small>Rolling...</small>
                 </div>
               `;
             }
@@ -1436,15 +1502,7 @@ function renderArenaDraftTeam() {
 }
 
 function rerollArenaChoices() {
-  if (!isArenaMode() || state.arenaRerolls === 0 || state.picks[state.selectedSlot]) return;
-  state.arenaRerolls -= 1;
-  state.slotRolls[state.selectedSlot] = null;
-  els.arenaDraftTeam.classList.add("rolling-in");
-  window.setTimeout(() => {
-    rollArenaChoices();
-    render();
-    window.setTimeout(() => els.arenaDraftTeam.classList.remove("rolling-in"), 420);
-  }, 280);
+  startArenaChoiceRoll({ spendReroll: true });
 }
 
 function renderArenaOpponent() {
@@ -1499,8 +1557,7 @@ function lockPick(pick) {
   if (nextOpen !== -1) {
     state.selectedSlot = nextOpen;
     if (isArenaMode()) {
-      rollArenaChoices();
-      render();
+      startArenaChoiceRoll();
       return;
     }
     renderTeam();
@@ -1657,14 +1714,15 @@ function resetArenaDraft() {
   state.candidates = [];
   state.arenaRerolls = 2;
   state.arenaLastResult = null;
+  state.arenaRolling = false;
+  state.arenaRollingFrames = [];
 }
 
 function advanceArenaBattle() {
   resetArenaDraft();
   state.arenaBattle = state.arenaWins + 1;
   state.opponentTeam = buildArenaOpponentTeam();
-  rollArenaChoices();
-  render();
+  startArenaChoiceRoll();
 }
 
 function resolveArenaBattle() {
@@ -1934,6 +1992,8 @@ function setMode(mode) {
 function showSetup() {
   hideRankModal();
   window.clearInterval(spinTimer);
+  window.clearInterval(arenaRollTimer);
+  window.clearTimeout(arenaRollFinishTimer);
   state = newState();
   state.mode = "normal";
   els.setupPanel.classList.remove("hidden");
@@ -1945,6 +2005,8 @@ function showSetup() {
 function startRun() {
   hideRankModal();
   window.clearInterval(spinTimer);
+  window.clearInterval(arenaRollTimer);
+  window.clearTimeout(arenaRollFinishTimer);
   state = newState();
   state.started = true;
   els.setupPanel.classList.add("hidden");
@@ -1952,8 +2014,7 @@ function startRun() {
   els.verdict.classList.remove("hidden");
   if (isArenaMode()) {
     state.opponentTeam = buildArenaOpponentTeam();
-    rollArenaChoices();
-    render();
+    startArenaChoiceRoll();
     return;
   }
   render();
