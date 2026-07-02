@@ -1360,8 +1360,8 @@ function renderArenaDraftTeam() {
             const rival = state.opponentTeam[index];
             return `
               <div class="arena-matchup-slot rival-slot">
-                ${rival ? spriteImg(rival) : `<span class="bench-label">Bench</span>`}
-                <small>${rival ? rival.name : "No rival"}</small>
+                ${spriteImg(rival)}
+                <small>${rival.name}</small>
               </div>
             `;
           })
@@ -1566,17 +1566,22 @@ function opponentTeamScore() {
 function buildArenaOpponentTeam() {
   const used = new Set(state.picks.filter(Boolean).map((pick) => pick.name));
   const floor = Math.min(540, 450 + state.arenaWins * 8);
-  const pool = monsters
+  const eligible = monsters
     .filter(
       (monster) =>
         !excludedPokemon.has(monster.name) &&
         !used.has(monster.name) &&
         !monster.legendary &&
-        generations.includes(monster.generation) &&
-        monster.bst >= floor,
+        generations.includes(monster.generation),
     )
     .sort((a, b) => b.bst - a.bst);
-  return shuffle(pool.slice(0, 140)).slice(0, arenaOpponentSize);
+  const premium = eligible.filter((monster) => monster.bst >= floor);
+  const selected = shuffle(premium.slice(0, 140)).slice(0, arenaOpponentSize);
+  if (selected.length >= arenaOpponentSize) return selected;
+
+  const selectedNames = new Set(selected.map((monster) => monster.name));
+  const fallback = shuffle(eligible.filter((monster) => !selectedNames.has(monster.name)));
+  return [...selected, ...fallback].slice(0, arenaOpponentSize);
 }
 
 function resetArenaDraft() {
