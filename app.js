@@ -1493,7 +1493,8 @@ function compositionScore() {
   const speedTarget = Math.min(1, totals.speed / 520);
   const bulkTarget = Math.min(1, (totals.hp + totals.defense + totals.specialDefense) / 1500);
   const balance = Math.round(((offenseBalance + speedTarget + bulkTarget) / 3) * 100);
-  const score = Math.min(100, Math.round(power * 0.66 + diversity * 0.18 + balance * 0.16));
+  const rawScore = Math.min(100, Math.round(power * 0.66 + diversity * 0.18 + balance * 0.16));
+  const score = isArenaMode() ? rawScore : Math.min(100, Math.round(rawScore + (100 - rawScore) * 0.2));
 
   return { score, power, diversity, balance, typeCount };
 }
