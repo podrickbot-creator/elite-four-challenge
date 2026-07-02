@@ -1232,7 +1232,9 @@ function arenaRollingPool() {
 function updateArenaRollingFrames(pool = arenaRollingPool()) {
   const count = Math.max(1, slots.length - state.selectedSlot);
   const source = pool.length ? pool : monsters.filter((monster) => !excludedPokemon.has(monster.name));
-  state.arenaRollingFrames = Array.from({ length: count }, () => sample(source)).filter(Boolean);
+  state.arenaRollingFrames = Array.from({ length: count }, () => shuffle(source).slice(0, 3)).filter(
+    (frame) => frame.length,
+  );
 }
 
 function startArenaChoiceRoll({ spendReroll = false } = {}) {
@@ -1252,14 +1254,14 @@ function startArenaChoiceRoll({ spendReroll = false } = {}) {
   arenaRollTimer = window.setInterval(() => {
     updateArenaRollingFrames(pool);
     renderArenaDraftTeam();
-  }, 115);
+  }, 95);
   arenaRollFinishTimer = window.setTimeout(() => {
     window.clearInterval(arenaRollTimer);
     rollArenaChoices();
     state.arenaRolling = false;
     state.arenaRollingFrames = [];
     render();
-  }, 980);
+  }, 1800);
 }
 
 function selectedRolls() {
@@ -1452,10 +1454,11 @@ function renderArenaDraftTeam() {
         ${slots
           .map((slot, index) => {
             const pick = state.picks[index];
-            const rollingPick =
+            const rollingFrame =
               state.arenaRolling && !pick && index >= state.selectedSlot
                 ? state.arenaRollingFrames[index - state.selectedSlot]
                 : null;
+            const rollingPick = rollingFrame?.[1] || rollingFrame?.[0] || null;
             const candidate = !pick && index >= state.selectedSlot ? state.candidates[index - state.selectedSlot] : null;
             if (pick) {
               return `
@@ -1468,8 +1471,10 @@ function renderArenaDraftTeam() {
             if (rollingPick) {
               return `
                 <div class="arena-matchup-slot your-slot rolling-slot${index === state.selectedSlot ? " current" : ""}">
-                  ${spriteImg(rollingPick)}
-                  <small>Rolling...</small>
+                  <div class="slot-reel" aria-hidden="true">
+                    ${rollingFrame.map((monster) => spriteImg(monster)).join("")}
+                  </div>
+                  <small>${rollingPick.name}</small>
                 </div>
               `;
             }

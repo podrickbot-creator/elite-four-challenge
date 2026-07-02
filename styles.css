@@ -815,13 +815,44 @@ h2 {
 .rolling-slot {
   border-color: var(--gold);
   background:
-    linear-gradient(180deg, rgba(255, 203, 5, 0.08), rgba(49, 91, 162, 0.16)),
+    linear-gradient(180deg, rgba(255, 203, 5, 0.18), rgba(49, 91, 162, 0.2)),
     #18213a;
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 203, 5, 0.12),
+    0 0 0 2px rgba(255, 203, 5, 0.12);
   overflow: hidden;
 }
 
-.rolling-slot .pokemon-sprite {
-  animation: slotSpriteRoll 230ms steps(3, end) infinite;
+.slot-reel {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 58px;
+  overflow: hidden;
+}
+
+.slot-reel .pokemon-sprite {
+  grid-area: 1 / 1;
+  width: 58px;
+  height: 58px;
+  animation: slotSpriteRoll 285ms steps(3, end) infinite;
+}
+
+.slot-reel .pokemon-sprite:nth-child(1) {
+  animation-delay: -190ms;
+}
+
+.slot-reel .pokemon-sprite:nth-child(2) {
+  animation-delay: -95ms;
+}
+
+.slot-reel .pokemon-sprite:nth-child(3) {
+  animation-delay: 0ms;
+}
+
+.rolling-slot small {
+  color: var(--gold);
+  animation: rollingNameBlink 380ms steps(2, end) infinite;
 }
 
 .choice-slot:hover,
@@ -837,18 +868,34 @@ h2 {
 
 @keyframes slotSpriteRoll {
   0% {
-    transform: translateY(-12px);
-    opacity: 0.35;
+    transform: translateY(-54px);
+    opacity: 0;
   }
 
-  55% {
-    transform: translateY(8px);
+  35% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  65% {
+    transform: translateY(0);
     opacity: 1;
   }
 
   100% {
-    transform: translateY(18px);
-    opacity: 0.45;
+    transform: translateY(54px);
+    opacity: 0;
+  }
+}
+
+@keyframes rollingNameBlink {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
   }
 }
 
