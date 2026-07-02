@@ -27,7 +27,7 @@ const biomeRolls = [
 ];
 const legendaryBiome = "Legendary";
 const captainBiome = "Team Captain";
-const arenaOpponentSize = 5;
+const arenaOpponentSize = 6;
 const arenaTargetWins = 12;
 
 const typeColors = {
