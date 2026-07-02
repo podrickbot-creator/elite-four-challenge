@@ -1,5 +1,5 @@
 const slots = [
-  { label: "1" },
+  { label: "Team Captain" },
   { label: "2" },
   { label: "3" },
   { label: "4" },
@@ -26,6 +26,7 @@ const biomeRolls = [
   "Safari",
 ];
 const legendaryBiome = "Legendary";
+const captainBiome = "Team Captain";
 
 const typeColors = {
   Electric: "#f6ca45",
@@ -67,6 +68,57 @@ const excludedPokemon = new Set([
 ]);
 
 const encounterPools = {
+  "Team Captain": [
+    "Venusaur",
+    "Charizard",
+    "Blastoise",
+    "Pidgeot",
+    "Nidoqueen",
+    "Nidoking",
+    "Vileplume",
+    "Alakazam",
+    "Machamp",
+    "Victreebel",
+    "Golem",
+    "Gengar",
+    "Dragonite",
+    "Meganium",
+    "Typhlosion",
+    "Feraligatr",
+    "Crobat",
+    "Ampharos",
+    "Bellossom",
+    "Politoed",
+    "Kingdra",
+    "Tyranitar",
+    "Sceptile",
+    "Blaziken",
+    "Swampert",
+    "Gardevoir",
+    "Slaking",
+    "Exploud",
+    "Aggron",
+    "Flygon",
+    "Walrein",
+    "Salamence",
+    "Metagross",
+    "Torterra",
+    "Infernape",
+    "Empoleon",
+    "Staraptor",
+    "Luxray",
+    "Roserade",
+    "Garchomp",
+    "Magnezone",
+    "Rhyperior",
+    "Electivire",
+    "Magmortar",
+    "Togekiss",
+    "Mamoswine",
+    "Gallade",
+    "Dusknoir",
+    "Froslass",
+  ],
   Starter: [
     "Bulbasaur",
     "Ivysaur",
@@ -964,6 +1016,7 @@ const els = {
   generation: document.querySelector("#generationConstraint"),
   typing: document.querySelector("#typingConstraint"),
   generationRerollCount: document.querySelector("#generationRerollCount"),
+  typingLabel: document.querySelector("#typingConstraint").closest(".constraint-card").querySelector("span"),
   typingRerollCount: document.querySelector("#typingRerollCount"),
   generationCard: document.querySelector("#generationConstraint").closest(".constraint-card"),
   typingCard: document.querySelector("#typingConstraint").closest(".constraint-card"),
@@ -1028,11 +1081,13 @@ function selectedSlot() {
 }
 
 function currentEncounter() {
+  if (state.selectedSlot === 0) return captainBiome;
   if (state.selectedSlot === slots.length - 1) return legendaryBiome;
   return state.slotBiomes[state.selectedSlot] || "Tall Grass";
 }
 
 function rollableBiomes() {
+  if (state.selectedSlot === 0) return [captainBiome];
   return state.selectedSlot === slots.length - 1 ? [legendaryBiome] : biomeRolls;
 }
 
@@ -1102,16 +1157,23 @@ function selectedRolls() {
 function render() {
   els.generation.textContent = `Gen ${state.generation}`;
   state.typing = currentEncounter();
+  els.typingLabel.textContent = state.selectedSlot === 0 ? "Role" : "Biome";
   els.typing.textContent = currentEncounter();
   els.generationRerollCount.textContent = `${state.generationRerolls} respin${state.generationRerolls === 1 ? "" : "s"}`;
   els.typingRerollCount.textContent =
-    state.selectedSlot === slots.length - 1
+    state.selectedSlot === 0
+      ? "captain roll"
+      : state.selectedSlot === slots.length - 1
       ? "legendary roll"
       : `${state.typingRerolls} reroll${state.typingRerolls === 1 ? "" : "s"}`;
   els.rerollGeneration.disabled = state.generationRerolls === 0 || Boolean(state.picks[state.selectedSlot]);
-  els.rerollTyping.disabled = state.selectedSlot === slots.length - 1 || state.typingRerolls === 0 || Boolean(state.picks[state.selectedSlot]);
+  els.rerollTyping.disabled =
+    state.selectedSlot === 0 ||
+    state.selectedSlot === slots.length - 1 ||
+    state.typingRerolls === 0 ||
+    Boolean(state.picks[state.selectedSlot]);
   els.rerollTyping.hidden = false;
-  els.slotName.textContent = `Slot ${selectedSlot().label}`;
+  els.slotName.textContent = state.selectedSlot === 0 ? selectedSlot().label : `Slot ${selectedSlot().label}`;
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
   els.candidateGrid.classList.add("three-roll");
@@ -1205,7 +1267,7 @@ function renderTeam() {
         ? `<strong>${pick.name}</strong><span>${pick.encounter || state.slotBiomes[index]}</span>`
         : roll
           ? `<strong>${slot.label}</strong><span>3 options rolled</span>`
-          : `<strong>${slot.label}</strong><span>Click to roll this biome</span>`;
+          : `<strong>${slot.label}</strong><span>Click to roll this slot</span>`;
       const sprite = pick ? spriteImg(pick) : roll ? spriteImg(roll[0]) : `<span></span>`;
       return `<button class="team-card${selected}" data-slot="${index}">${sprite}<span class="slot-meta">${meta}</span>${score}</button>`;
     })
@@ -1384,7 +1446,11 @@ function setSpinState(active) {
   els.spinOverlay.setAttribute("aria-hidden", active ? "false" : "true");
   els.rerollGeneration.disabled = active || state.generationRerolls === 0;
   els.rerollTyping.disabled =
-    active || state.selectedSlot === slots.length - 1 || state.typingRerolls === 0 || Boolean(state.picks[state.selectedSlot]);
+    active ||
+    state.selectedSlot === 0 ||
+    state.selectedSlot === slots.length - 1 ||
+    state.typingRerolls === 0 ||
+    Boolean(state.picks[state.selectedSlot]);
   els.candidateGrid.style.opacity = active ? "0.42" : "1";
   els.candidateGrid.style.pointerEvents = active ? "none" : "auto";
 }
@@ -1457,6 +1523,7 @@ function reroll(kind) {
   if (
     kind === "typing" &&
     state.typingRerolls > 0 &&
+    state.selectedSlot !== 0 &&
     state.selectedSlot !== slots.length - 1 &&
     !state.picks[state.selectedSlot]
   ) {
