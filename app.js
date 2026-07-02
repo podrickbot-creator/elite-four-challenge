@@ -1457,9 +1457,11 @@ function setSpinState(active) {
 
 function rerollGenerationValue() {
   const options = generations.filter(
+    (generation) => generation !== state.generation && poolFor(generation, currentEncounter(), usedNames()).length >= 3,
+  );
+  const fallback = generations.filter(
     (generation) => generation !== state.generation && poolFor(generation, currentEncounter(), usedNames()).length > 0,
   );
-  const fallback = generations.filter((generation) => generation !== state.generation);
   const next = sample(options.length ? options : fallback);
   if (next) state.generation = next;
 }
@@ -1518,7 +1520,7 @@ function spinRoll(kind = "both") {
 function reroll(kind) {
   if (kind === "generation" && state.generationRerolls > 0 && !state.picks[state.selectedSlot]) {
     state.generationRerolls -= 1;
-    spinRoll("both");
+    spinRoll("generation");
   }
   if (
     kind === "typing" &&
