@@ -198,7 +198,7 @@ h2 {
 }
 
 .start-overlay {
-  grid-template-columns: minmax(0, 720px);
+  grid-template-columns: repeat(2, minmax(0, 520px));
   justify-content: center;
 }
 
@@ -231,6 +231,10 @@ h2 {
 .start-run-button {
   min-height: 310px;
   padding: 30px;
+}
+
+.arena-start-button {
+  background: #18213a;
 }
 
 .large-mode strong {
@@ -734,6 +738,35 @@ h2 {
   gap: 10px;
 }
 
+.result-team.arena-result-team {
+  grid-template-columns: 1fr;
+}
+
+.arena-results-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.arena-team-row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rival-team-row {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.arena-result-team .result-pick {
+  min-height: 92px;
+  padding: 5px;
+}
+
+.arena-result-team .result-pick .pokemon-sprite {
+  width: 82px;
+  height: 82px;
+}
+
 .result-pick {
   border: 3px solid var(--line);
   border-radius: 0;
@@ -884,6 +917,11 @@ h2 {
   }
 
   .result-team {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .arena-team-row,
+  .rival-team-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 

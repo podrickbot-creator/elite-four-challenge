@@ -27,6 +27,8 @@ const biomeRolls = [
 ];
 const legendaryBiome = "Legendary";
 const captainBiome = "Team Captain";
+const arenaOpponentSize = 5;
+const arenaTargetWins = 12;
 
 const typeColors = {
   Electric: "#f6ca45",
@@ -1020,6 +1022,7 @@ const els = {
   typingRerollCount: document.querySelector("#typingRerollCount"),
   generationCard: document.querySelector("#generationConstraint").closest(".constraint-card"),
   typingCard: document.querySelector("#typingConstraint").closest(".constraint-card"),
+  rollBoard: document.querySelector(".roll-board"),
   setupPanel: document.querySelector("#setupPanel"),
   arena: document.querySelector("#arena"),
   rerollGeneration: document.querySelector("#rerollGeneration"),
@@ -1035,6 +1038,7 @@ const els = {
   rankTitle: document.querySelector("#rankTitle"),
   rankScore: document.querySelector("#rankScore"),
   rankDescription: document.querySelector("#rankDescription"),
+  resultHeading: document.querySelector("#resultHeading"),
   resultTeam: document.querySelector("#resultTeam"),
   spinOverlay: document.querySelector("#spinOverlay"),
   spinGeneration: document.querySelector("#spinGeneration"),
@@ -1062,6 +1066,7 @@ function newState() {
     generationRerolls: 2,
     typingRerolls: 2,
     candidates: [],
+    opponentTeam: [],
     mode: previousSettings.mode,
     started: false,
   };
@@ -1080,7 +1085,17 @@ function selectedSlot() {
   return slots[state.selectedSlot];
 }
 
+function isArenaMode() {
+  return state.mode === "arena";
+}
+
+function displaySlotLabel(index = state.selectedSlot) {
+  if (isArenaMode()) return `Pick ${index + 1}`;
+  return index === 0 ? slots[index].label : `Slot ${slots[index].label}`;
+}
+
 function currentEncounter() {
+  if (isArenaMode()) return "Arena Draft";
   if (state.selectedSlot === 0) return captainBiome;
   if (state.selectedSlot === slots.length - 1) return legendaryBiome;
   return state.slotBiomes[state.selectedSlot] || "Tall Grass";
@@ -1107,8 +1122,20 @@ function matchesEncounter(monster, encounter) {
 }
 
 function candidatePool() {
+  if (isArenaMode()) return arenaCandidatePool();
   const used = usedNames();
   return poolFor(state.generation, currentEncounter(), used);
+}
+
+function arenaCandidatePool() {
+  const used = usedNames();
+  return monsters.filter(
+    (monster) =>
+      !excludedPokemon.has(monster.name) &&
+      !used.has(monster.name) &&
+      !monster.legendary &&
+      generations.includes(monster.generation),
+  );
 }
 
 function poolFor(generation, encounter, used) {
@@ -1145,7 +1172,8 @@ function rollFreshConstraints() {
 
 function pickCandidates() {
   const candidates = candidatePool();
-  const rolled = shuffle(candidates).slice(0, 3);
+  const count = isArenaMode() ? Math.max(1, slots.length - state.selectedSlot) : 3;
+  const rolled = shuffle(candidates).slice(0, count);
   state.slotRolls[state.selectedSlot] = rolled.length ? rolled : null;
   state.candidates = rolled;
 }
@@ -1155,6 +1183,8 @@ function selectedRolls() {
 }
 
 function render() {
+  els.arena.dataset.mode = state.mode;
+  els.rollBoard.classList.toggle("hidden", isArenaMode());
   els.generation.textContent = `Gen ${state.generation}`;
   state.typing = currentEncounter();
   els.typingLabel.textContent = state.selectedSlot === 0 ? "Role" : "Biome";
@@ -1173,7 +1203,7 @@ function render() {
     state.typingRerolls === 0 ||
     Boolean(state.picks[state.selectedSlot]);
   els.rerollTyping.hidden = false;
-  els.slotName.textContent = state.selectedSlot === 0 ? selectedSlot().label : `Slot ${selectedSlot().label}`;
+  els.slotName.textContent = displaySlotLabel();
   els.filledCount.textContent = state.picks.filter(Boolean).length;
   els.candidateGrid.classList.toggle("expert-list", state.mode === "expert");
   els.candidateGrid.classList.add("three-roll");
@@ -1201,7 +1231,19 @@ function renderCandidates() {
 
   if (state.candidates.length === 0) {
     els.choiceCount.textContent = "No options";
-    els.candidateGrid.innerHTML = `<div class="monster-card" style="grid-column: 1 / -1;"><h3>No picks available</h3><p class="verdict">This roll has no unused ${currentEncounter()} Pokemon from Gen ${state.generation}. Use your generation reroll or start a new run.</p></div>`;
+    const noOptionsCopy = isArenaMode()
+      ? "The arena pool ran dry. Start a new run."
+      : `This roll has no unused ${currentEncounter()} Pokemon from Gen ${state.generation}. Use your generation reroll or start a new run.`;
+    els.candidateGrid.innerHTML = `<div class="monster-card" style="grid-column: 1 / -1;"><h3>No picks available</h3><p class="verdict">${noOptionsCopy}</p></div>`;
+    return;
+  }
+
+  if (isArenaMode()) {
+    els.choiceCount.textContent = `Arena pick ${state.selectedSlot + 1}: choose 1 of ${state.candidates.length}`;
+    els.candidateGrid.innerHTML = state.candidates.map(cardTemplate).join("");
+    els.candidateGrid.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => draft(button.dataset.name));
+    });
     return;
   }
 
@@ -1266,8 +1308,8 @@ function renderTeam() {
       const meta = pick
         ? `<strong>${pick.name}</strong><span>${pick.encounter || state.slotBiomes[index]}</span>`
         : roll
-          ? `<strong>${slot.label}</strong><span>3 options rolled</span>`
-          : `<strong>${slot.label}</strong><span>Click to roll this slot</span>`;
+          ? `<strong>${displaySlotLabel(index)}</strong><span>${roll.length} options rolled</span>`
+          : `<strong>${displaySlotLabel(index)}</strong><span>${isArenaMode() ? "Draft pending" : "Click to roll this slot"}</span>`;
       const sprite = pick ? spriteImg(pick) : roll ? spriteImg(roll[0]) : `<span></span>`;
       return `<button class="team-card${selected}" data-slot="${index}">${sprite}<span class="slot-meta">${meta}</span>${score}</button>`;
     })
@@ -1281,6 +1323,11 @@ function renderTeam() {
 function selectSlot(index) {
   state.selectedSlot = index;
   const needsRoll = !state.picks[index] && !state.slotRolls[index];
+  if (isArenaMode() && needsRoll) {
+    pickCandidates();
+    render();
+    return;
+  }
   if (needsRoll) {
     spinRoll("both");
     return;
@@ -1306,12 +1353,18 @@ function lockPick(pick) {
   const nextOpen = state.picks.findIndex((slotPick) => !slotPick);
   if (nextOpen !== -1) {
     state.selectedSlot = nextOpen;
+    if (isArenaMode()) {
+      pickCandidates();
+      render();
+      return;
+    }
     renderTeam();
     updateScore();
     spinRoll("both");
     return;
   }
-  pickCandidates();
+  if (isArenaMode()) state.opponentTeam = buildArenaOpponentTeam();
+  else pickCandidates();
   render();
   window.setTimeout(showRankModal, 250);
 }
@@ -1349,6 +1402,16 @@ function currentScore() {
 
 function updateScore() {
   const picks = state.picks.filter(Boolean);
+  if (isArenaMode()) {
+    if (picks.length < slots.length) {
+      const nextChoices = Math.max(1, slots.length - picks.length);
+      els.verdict.textContent = `${picks.length}/6 drafted. Next pick has ${nextChoices} choice${nextChoices === 1 ? "" : "s"}. Chase the 12-0 arena run.`;
+    } else {
+      const result = arenaResult();
+      els.verdict.textContent = `Arena run complete: ${result.wins}-${arenaTargetWins - result.wins}.`;
+    }
+    return;
+  }
   const score = currentScore();
   if (picks.length < slots.length) {
     els.verdict.textContent = `${picks.length}/6 locked. Choose one of three rolled Pokemon. Respins left: ${state.generationRerolls}.`;
@@ -1370,6 +1433,36 @@ function rankFor(score) {
   return { grade: "F", title: "1 Badge", description: "Back to Littleroot. The league dream needs a new draft." };
 }
 
+function arenaResult() {
+  const teamScore = compositionScore().score;
+  const opponentScore = opponentTeamScore();
+  const winRate = Math.max(8, Math.min(98, Math.round(58 + (teamScore - opponentScore) * 0.72)));
+  const wins = Math.max(0, Math.min(arenaTargetWins, Math.round((winRate / 100) * arenaTargetWins)));
+  return { wins, losses: arenaTargetWins - wins, winRate, teamScore, opponentScore };
+}
+
+function opponentTeamScore() {
+  if (!state.opponentTeam.length) return 72;
+  const bst = state.opponentTeam.reduce((total, pick) => total + pick.bst, 0);
+  const typeCount = new Set(state.opponentTeam.flatMap((pick) => pick.types)).size;
+  return Math.min(96, Math.round((bst / (arenaOpponentSize * 585)) * 74 + Math.min(22, typeCount * 3)));
+}
+
+function buildArenaOpponentTeam() {
+  const used = new Set(state.picks.filter(Boolean).map((pick) => pick.name));
+  const pool = monsters
+    .filter(
+      (monster) =>
+        !excludedPokemon.has(monster.name) &&
+        !used.has(monster.name) &&
+        !monster.legendary &&
+        generations.includes(monster.generation) &&
+        monster.bst >= 470,
+    )
+    .sort((a, b) => b.bst - a.bst);
+  return shuffle(pool.slice(0, 140)).slice(0, arenaOpponentSize);
+}
+
 function aggregateStats() {
   return state.picks.filter(Boolean).reduce(
     (totals, pick) => {
@@ -1387,6 +1480,14 @@ function aggregateStats() {
 }
 
 function teamShareText(score, rank) {
+  if (isArenaMode()) {
+    const result = arenaResult();
+    const team = state.picks
+      .filter(Boolean)
+      .map((pick, index) => `${index + 1}. ${pick.name}`)
+      .join("\n");
+    return `Elite Four Challenge - Arena Mode\nRecord: ${result.wins}-${result.losses}\nProjected win rate: ${result.winRate}%\n\n${team}`;
+  }
   const team = state.picks
     .filter(Boolean)
     .map((pick, index) => `${index + 1}. ${pick.encounter || slots[index].label}: ${pick.name}`)
@@ -1395,6 +1496,12 @@ function teamShareText(score, rank) {
 }
 
 function showRankModal() {
+  if (isArenaMode()) {
+    showArenaRankModal();
+    return;
+  }
+  els.resultHeading.textContent = "Elite Four Team";
+  els.resultTeam.classList.remove("arena-result-team");
   const composition = compositionScore();
   const score = composition.score;
   const rank = rankFor(score);
@@ -1415,6 +1522,62 @@ function showRankModal() {
       `,
     )
     .join("");
+  els.rankModal.classList.add("open");
+  els.rankModal.setAttribute("aria-hidden", "false");
+}
+
+function showArenaRankModal() {
+  const result = arenaResult();
+  const arenaTitle =
+    result.wins >= 12
+      ? "Arena Champion"
+      : result.wins >= 10
+        ? "Arena Finalist"
+        : result.wins >= 7
+          ? "Arena Contender"
+      : "Arena Challenger";
+  els.resultHeading.textContent = "Arena Matchup";
+  els.resultTeam.classList.add("arena-result-team");
+  els.rankTitle.innerHTML = `
+    <span>Arena Mode</span>
+    <strong>${result.wins}-${result.losses}</strong>
+    <em>${arenaTitle}</em>
+    <small>${result.winRate}% projected win rate</small>
+  `;
+  els.rankScore.textContent = "";
+  els.rankDescription.textContent = `Your team finished with ${result.wins} win${result.wins === 1 ? "" : "s"} before the arena caught up.`;
+  els.resultTeam.innerHTML = `
+    <div class="arena-results-grid">
+      <div>
+        <h3>Your Team</h3>
+        <div class="arena-team-row">
+          ${state.picks
+            .map(
+              (pick) => `
+                <div class="result-pick" title="${pick.name}">
+                  ${spriteImg(pick)}
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+      <div>
+        <h3>Rival Team</h3>
+        <div class="arena-team-row rival-team-row">
+          ${state.opponentTeam
+            .map(
+              (pick) => `
+                <div class="result-pick" title="${pick.name}">
+                  ${spriteImg(pick)}
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
   els.rankModal.classList.add("open");
   els.rankModal.setAttribute("aria-hidden", "false");
 }
@@ -1549,6 +1712,7 @@ function showSetup() {
   hideRankModal();
   window.clearInterval(spinTimer);
   state = newState();
+  state.mode = "normal";
   els.setupPanel.classList.remove("hidden");
   els.arena.classList.add("hidden");
   els.verdict.classList.add("hidden");
@@ -1564,6 +1728,11 @@ function startRun() {
   els.arena.classList.remove("hidden");
   els.verdict.classList.remove("hidden");
   render();
+  if (isArenaMode()) {
+    pickCandidates();
+    render();
+    return;
+  }
   spinRoll("both");
 }
 

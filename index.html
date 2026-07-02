@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Elite Four Challenge" />
     <meta name="twitter:description" content="Draft a Pokemon team and see if your squad can clear the Elite Four." />
     <meta name="twitter:image" content="https://podrickbot-creator.github.io/elite-four-challenge/assets/social-card.png" />
-    <link rel="stylesheet" href="./styles.css?v=13" />
+    <link rel="stylesheet" href="./styles.css?v=14" />
   </head>
   <body>
     <main class="game-shell">
@@ -40,6 +40,11 @@
             <strong>Start Run</strong>
             <img class="mode-ball" src="./assets/pokeball.svg" alt="Pokeball" loading="lazy" />
             <span>Build the best team you can. Beat the Elite Four. Good Luck!</span>
+          </button>
+          <button class="mode-button large-mode start-run-button arena-start-button" type="button" data-mode="arena">
+            <strong>Arena Mode</strong>
+            <img class="mode-ball" src="./assets/masterball.svg" alt="Master Ball" loading="lazy" />
+            <span>Draft from 6 choices down to 1. Beat a rival team of 5 and chase a 12-0 run.</span>
           </button>
         </div>
       </section>
@@ -104,7 +109,7 @@
         <h2 id="rankTitle">A+ Elite Four Champion</h2>
         <div class="rank-score" id="rankScore">96%</div>
         <div class="result-section">
-          <h3>Elite Four Team</h3>
+          <h3 id="resultHeading">Elite Four Team</h3>
           <div class="result-team" id="resultTeam"></div>
         </div>
         <p id="rankDescription">Your team finished with 8 Badges.</p>
@@ -115,7 +120,7 @@
       </div>
     </div>
 
-    <script src="./pokemon-data.js?v=13"></script>
-    <script src="./app.js?v=13"></script>
+    <script src="./pokemon-data.js?v=14"></script>
+    <script src="./app.js?v=14"></script>
   </body>
 </html>
