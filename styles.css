@@ -165,7 +165,7 @@ h2 {
 }
 
 .arena[data-mode="arena"] {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 1fr;
 }
 
 .squad-panel {
@@ -180,9 +180,12 @@ h2 {
 }
 
 .arena[data-mode="arena"] .squad-panel {
-  background:
-    linear-gradient(rgba(255, 203, 5, 0.06) 2px, transparent 2px) 0 0 / 12px 12px,
-    #17122b;
+  display: none;
+}
+
+.arena[data-mode="arena"] .pick-zone {
+  min-height: 640px;
+  padding: 18px;
 }
 
 .hidden {
@@ -614,14 +617,19 @@ h2 {
 
 .arena-draft-team {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 10px;
-  align-items: center;
+  gap: 12px;
   margin: 0 0 12px;
-  padding: 10px;
+  padding: 12px;
   border: 3px solid var(--line);
-  background: #0b271f;
+  background: #10192f;
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.24);
+}
+
+.arena-board-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .arena-record {
@@ -646,35 +654,94 @@ h2 {
   font-weight: 950;
 }
 
-.arena-pick-strip {
+.arena-reroll-button {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 3px solid var(--line);
+  background: var(--red);
+  color: white;
+  font-weight: 950;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.28);
+}
+
+.arena-reroll-button:disabled {
+  background: #343b4c;
+  color: #87919d;
+  cursor: default;
+}
+
+.arena-matchup-board {
+  display: grid;
+  gap: 7px;
+}
+
+.arena-row-label {
+  margin: 0;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.arena-matchup-row {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
 }
 
-.arena-picked-slot {
+.arena-matchup-slot {
   display: grid;
+  align-content: center;
   place-items: center;
-  min-height: 64px;
-  border: 3px dashed rgba(244, 255, 232, 0.28);
+  gap: 3px;
+  min-height: 112px;
+  padding: 5px;
+  border: 3px solid rgba(244, 255, 232, 0.22);
   background: #18213a;
   color: var(--muted);
   font-weight: 950;
+  text-align: center;
+  min-width: 0;
 }
 
-.arena-picked-slot.current {
-  border-style: solid;
+.arena-matchup-slot small {
+  width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.arena-matchup-slot .pokemon-sprite {
+  width: 76px;
+  height: 76px;
+}
+
+.rival-slot {
+  border-color: rgba(239, 62, 51, 0.72);
+  background: #211327;
+}
+
+.your-slot.current {
   border-color: var(--gold);
 }
 
-.arena-picked-slot.filled {
-  border-style: solid;
+.your-slot.filled {
   border-color: var(--screen);
 }
 
-.arena-picked-slot .pokemon-sprite {
-  width: 58px;
-  height: 58px;
+.bench-label {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  color: #87919d;
+  font-size: 0.7rem;
+  text-transform: uppercase;
 }
 
 .team-card .slot-meta {
@@ -1019,7 +1086,7 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .arena-pick-strip {
+  .arena-matchup-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 

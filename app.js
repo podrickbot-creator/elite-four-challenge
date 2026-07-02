@@ -1072,6 +1072,7 @@ function newState() {
     opponentTeam: [],
     arenaWins: 0,
     arenaBattle: 1,
+    arenaRerolls: 2,
     arenaLastResult: null,
     mode: previousSettings.mode,
     started: false,
@@ -1312,7 +1313,7 @@ function spriteImg(monster) {
 
 function renderTeam() {
   if (isArenaMode()) {
-    renderArenaOpponent();
+    els.teamGrid.innerHTML = "";
     return;
   }
   els.teamGrid.innerHTML = slots
@@ -1336,6 +1337,69 @@ function renderTeam() {
   });
 }
 
+function renderArenaDraftTeam() {
+  if (!isArenaMode()) {
+    els.arenaDraftTeam.innerHTML = "";
+    return;
+  }
+  els.arenaDraftTeam.innerHTML = `
+    <div class="arena-board-header">
+      <div class="arena-record">
+        <strong>${state.arenaWins}-0</strong>
+        <span>12 wins needed</span>
+      </div>
+      <button class="arena-reroll-button" type="button" ${state.arenaRerolls === 0 || Boolean(state.picks[state.selectedSlot]) ? "disabled" : ""}>
+        Reroll ${state.arenaRerolls}
+      </button>
+    </div>
+    <div class="arena-matchup-board">
+      <p class="arena-row-label">Rival Team</p>
+      <div class="arena-matchup-row">
+        ${slots
+          .map((slot, index) => {
+            const rival = state.opponentTeam[index];
+            return `
+              <div class="arena-matchup-slot rival-slot">
+                ${rival ? spriteImg(rival) : `<span class="bench-label">Bench</span>`}
+                <small>${rival ? rival.name : "No rival"}</small>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+      <p class="arena-row-label">Your Team</p>
+      <div class="arena-matchup-row">
+        ${slots
+          .map((slot, index) => {
+            const pick = state.picks[index];
+            return `
+              <div class="arena-matchup-slot your-slot${pick ? " filled" : ""}${index === state.selectedSlot ? " current" : ""}">
+                ${pick ? spriteImg(pick) : `<span>${index + 1}</span>`}
+                <small>${pick ? pick.name : index === state.selectedSlot ? "Picking" : "Open"}</small>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+    </div>
+  `;
+  const rerollButton = els.arenaDraftTeam.querySelector(".arena-reroll-button");
+  if (rerollButton) {
+    rerollButton.addEventListener("click", rerollArenaChoices);
+  }
+}
+
+function rerollArenaChoices() {
+  if (!isArenaMode() || state.arenaRerolls === 0 || state.picks[state.selectedSlot]) return;
+  state.arenaRerolls -= 1;
+  state.slotRolls[state.selectedSlot] = null;
+  els.candidateGrid.classList.add("rolling-in");
+  window.setTimeout(() => {
+    pickCandidates();
+    render();
+  }, 280);
+}
+
 function renderArenaOpponent() {
   els.teamGrid.innerHTML = state.opponentTeam
     .map(
@@ -1351,31 +1415,6 @@ function renderArenaOpponent() {
       `,
     )
     .join("");
-}
-
-function renderArenaDraftTeam() {
-  if (!isArenaMode()) {
-    els.arenaDraftTeam.innerHTML = "";
-    return;
-  }
-  els.arenaDraftTeam.innerHTML = `
-    <div class="arena-record">
-      <strong>${state.arenaWins}-0</strong>
-      <span>12 wins needed</span>
-    </div>
-    <div class="arena-pick-strip">
-      ${slots
-        .map((slot, index) => {
-          const pick = state.picks[index];
-          return `
-            <div class="arena-picked-slot${pick ? " filled" : ""}${index === state.selectedSlot ? " current" : ""}">
-              ${pick ? spriteImg(pick) : `<span>${index + 1}</span>`}
-            </div>
-          `;
-        })
-        .join("")}
-    </div>
-  `;
 }
 
 function selectSlot(index) {
@@ -1545,6 +1584,7 @@ function resetArenaDraft() {
   state.slotRolls = Array(slots.length).fill(null);
   state.slotBiomes = Array(slots.length).fill(null);
   state.candidates = [];
+  state.arenaRerolls = 2;
   state.arenaLastResult = null;
 }
 
