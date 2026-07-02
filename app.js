@@ -1031,7 +1031,10 @@ const els = {
   filledCount: document.querySelector("#filledCount"),
   candidateGrid: document.querySelector("#candidateGrid"),
   choiceCount: document.querySelector("#choiceCount"),
+  arenaDraftTeam: document.querySelector("#arenaDraftTeam"),
   teamGrid: document.querySelector("#teamGrid"),
+  teamHeaderEyebrow: document.querySelector(".team-header .eyebrow"),
+  teamHeaderTitle: document.querySelector(".team-header h2"),
   reset: document.querySelector("#resetGame"),
   verdict: document.querySelector("#verdict"),
   rankModal: document.querySelector("#rankModal"),
@@ -1067,6 +1070,9 @@ function newState() {
     typingRerolls: 2,
     candidates: [],
     opponentTeam: [],
+    arenaWins: 0,
+    arenaBattle: 1,
+    arenaLastResult: null,
     mode: previousSettings.mode,
     started: false,
   };
@@ -1185,6 +1191,9 @@ function selectedRolls() {
 function render() {
   els.arena.dataset.mode = state.mode;
   els.rollBoard.classList.toggle("hidden", isArenaMode());
+  els.arenaDraftTeam.classList.toggle("hidden", !isArenaMode());
+  els.teamHeaderEyebrow.textContent = isArenaMode() ? `Arena ${state.arenaBattle}/${arenaTargetWins}` : "Squad";
+  els.teamHeaderTitle.textContent = isArenaMode() ? "Rival Team" : "Team";
   els.generation.textContent = `Gen ${state.generation}`;
   state.typing = currentEncounter();
   els.typingLabel.textContent = state.selectedSlot === 0 ? "Role" : "Biome";
@@ -1210,6 +1219,7 @@ function render() {
   renderSettings();
   renderCandidates();
   renderTeam();
+  renderArenaDraftTeam();
   updateScore();
 }
 
@@ -1241,6 +1251,8 @@ function renderCandidates() {
   if (isArenaMode()) {
     els.choiceCount.textContent = `Arena pick ${state.selectedSlot + 1}: choose 1 of ${state.candidates.length}`;
     els.candidateGrid.innerHTML = state.candidates.map(cardTemplate).join("");
+    els.candidateGrid.classList.add("rolling-in");
+    window.setTimeout(() => els.candidateGrid.classList.remove("rolling-in"), 420);
     els.candidateGrid.querySelectorAll("button").forEach((button) => {
       button.addEventListener("click", () => draft(button.dataset.name));
     });
@@ -1299,6 +1311,10 @@ function spriteImg(monster) {
 }
 
 function renderTeam() {
+  if (isArenaMode()) {
+    renderArenaOpponent();
+    return;
+  }
   els.teamGrid.innerHTML = slots
     .map((slot, index) => {
       const pick = state.picks[index];
@@ -1320,7 +1336,50 @@ function renderTeam() {
   });
 }
 
+function renderArenaOpponent() {
+  els.teamGrid.innerHTML = state.opponentTeam
+    .map(
+      (pick, index) => `
+        <div class="team-card rival-card">
+          ${spriteImg(pick)}
+          <span class="slot-meta">
+            <strong>${pick.name}</strong>
+            <span>Rival ${index + 1}</span>
+          </span>
+          <span class="slot-score">VS</span>
+        </div>
+      `,
+    )
+    .join("");
+}
+
+function renderArenaDraftTeam() {
+  if (!isArenaMode()) {
+    els.arenaDraftTeam.innerHTML = "";
+    return;
+  }
+  els.arenaDraftTeam.innerHTML = `
+    <div class="arena-record">
+      <strong>${state.arenaWins}-0</strong>
+      <span>12 wins needed</span>
+    </div>
+    <div class="arena-pick-strip">
+      ${slots
+        .map((slot, index) => {
+          const pick = state.picks[index];
+          return `
+            <div class="arena-picked-slot${pick ? " filled" : ""}${index === state.selectedSlot ? " current" : ""}">
+              ${pick ? spriteImg(pick) : `<span>${index + 1}</span>`}
+            </div>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
 function selectSlot(index) {
+  if (isArenaMode() && index > state.selectedSlot && !state.picks[index]) return;
   state.selectedSlot = index;
   const needsRoll = !state.picks[index] && !state.slotRolls[index];
   if (isArenaMode() && needsRoll) {
@@ -1363,8 +1422,12 @@ function lockPick(pick) {
     spinRoll("both");
     return;
   }
-  if (isArenaMode()) state.opponentTeam = buildArenaOpponentTeam();
-  else pickCandidates();
+  if (isArenaMode()) {
+    render();
+    window.setTimeout(resolveArenaBattle, 650);
+    return;
+  }
+  pickCandidates();
   render();
   window.setTimeout(showRankModal, 250);
 }
@@ -1405,10 +1468,11 @@ function updateScore() {
   if (isArenaMode()) {
     if (picks.length < slots.length) {
       const nextChoices = Math.max(1, slots.length - picks.length);
-      els.verdict.textContent = `${picks.length}/6 drafted. Next pick has ${nextChoices} choice${nextChoices === 1 ? "" : "s"}. Chase the 12-0 arena run.`;
+      els.verdict.textContent = `Arena record: ${state.arenaWins}-0. Draft ${picks.length}/6. Next pick has ${nextChoices} choice${nextChoices === 1 ? "" : "s"}.`;
     } else {
-      const result = arenaResult();
-      els.verdict.textContent = `Arena run complete: ${result.wins}-${arenaTargetWins - result.wins}.`;
+      els.verdict.textContent = state.arenaLastResult?.won
+        ? `Win ${state.arenaWins}! Rerolling for the next arena fight...`
+        : "Battle locked. Resolving the arena match...";
     }
     return;
   }
@@ -1433,12 +1497,23 @@ function rankFor(score) {
   return { grade: "F", title: "1 Badge", description: "Back to Littleroot. The league dream needs a new draft." };
 }
 
-function arenaResult() {
+function arenaBattleResult() {
   const teamScore = compositionScore().score;
   const opponentScore = opponentTeamScore();
   const winRate = Math.max(8, Math.min(98, Math.round(58 + (teamScore - opponentScore) * 0.72)));
-  const wins = Math.max(0, Math.min(arenaTargetWins, Math.round((winRate / 100) * arenaTargetWins)));
-  return { wins, losses: arenaTargetWins - wins, winRate, teamScore, opponentScore };
+  const won = winRate >= 50;
+  return { won, winRate, teamScore, opponentScore };
+}
+
+function arenaResult() {
+  const battle = state.arenaLastResult || arenaBattleResult();
+  return {
+    wins: state.arenaWins,
+    losses: state.arenaWins >= arenaTargetWins ? 0 : 1,
+    winRate: battle.winRate,
+    teamScore: battle.teamScore,
+    opponentScore: battle.opponentScore,
+  };
 }
 
 function opponentTeamScore() {
@@ -1450,6 +1525,7 @@ function opponentTeamScore() {
 
 function buildArenaOpponentTeam() {
   const used = new Set(state.picks.filter(Boolean).map((pick) => pick.name));
+  const floor = Math.min(540, 450 + state.arenaWins * 8);
   const pool = monsters
     .filter(
       (monster) =>
@@ -1457,10 +1533,43 @@ function buildArenaOpponentTeam() {
         !used.has(monster.name) &&
         !monster.legendary &&
         generations.includes(monster.generation) &&
-        monster.bst >= 470,
+        monster.bst >= floor,
     )
     .sort((a, b) => b.bst - a.bst);
   return shuffle(pool.slice(0, 140)).slice(0, arenaOpponentSize);
+}
+
+function resetArenaDraft() {
+  state.selectedSlot = 0;
+  state.picks = Array(slots.length).fill(null);
+  state.slotRolls = Array(slots.length).fill(null);
+  state.slotBiomes = Array(slots.length).fill(null);
+  state.candidates = [];
+  state.arenaLastResult = null;
+}
+
+function advanceArenaBattle() {
+  resetArenaDraft();
+  state.arenaBattle = state.arenaWins + 1;
+  state.opponentTeam = buildArenaOpponentTeam();
+  pickCandidates();
+  render();
+}
+
+function resolveArenaBattle() {
+  const battle = arenaBattleResult();
+  state.arenaLastResult = battle;
+  if (battle.won) {
+    state.arenaWins += 1;
+    if (state.arenaWins >= arenaTargetWins) {
+      showRankModal();
+      return;
+    }
+    render();
+    window.setTimeout(advanceArenaBattle, 1100);
+    return;
+  }
+  showRankModal();
 }
 
 function aggregateStats() {
@@ -1486,7 +1595,7 @@ function teamShareText(score, rank) {
       .filter(Boolean)
       .map((pick, index) => `${index + 1}. ${pick.name}`)
       .join("\n");
-    return `Elite Four Challenge - Arena Mode\nRecord: ${result.wins}-${result.losses}\nProjected win rate: ${result.winRate}%\n\n${team}`;
+    return `Elite Four Challenge - Arena Mode\nRecord: ${result.wins}-${result.losses}\nLast battle win rate: ${result.winRate}%\n\n${team}`;
   }
   const team = state.picks
     .filter(Boolean)
@@ -1542,10 +1651,13 @@ function showArenaRankModal() {
     <span>Arena Mode</span>
     <strong>${result.wins}-${result.losses}</strong>
     <em>${arenaTitle}</em>
-    <small>${result.winRate}% projected win rate</small>
+    <small>${result.winRate}% last battle win rate</small>
   `;
   els.rankScore.textContent = "";
-  els.rankDescription.textContent = `Your team finished with ${result.wins} win${result.wins === 1 ? "" : "s"} before the arena caught up.`;
+  els.rankDescription.textContent =
+    result.wins >= arenaTargetWins
+      ? "You cleared the arena. 12 straight wins."
+      : `Your run ended at ${result.wins} win${result.wins === 1 ? "" : "s"}.`;
   els.resultTeam.innerHTML = `
     <div class="arena-results-grid">
       <div>
@@ -1729,6 +1841,7 @@ function startRun() {
   els.verdict.classList.remove("hidden");
   render();
   if (isArenaMode()) {
+    state.opponentTeam = buildArenaOpponentTeam();
     pickCandidates();
     render();
     return;
