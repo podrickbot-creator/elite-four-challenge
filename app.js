@@ -1280,7 +1280,7 @@ function renderCandidates() {
 
   if (isArenaMode()) {
     els.choiceCount.textContent = `Arena pick ${state.selectedSlot + 1}: choose 1 of ${state.candidates.length}`;
-    els.candidateGrid.innerHTML = state.candidates.map(cardTemplate).join("");
+    els.candidateGrid.innerHTML = state.candidates.map(arenaCardTemplate).join("");
     els.candidateGrid.classList.add("rolling-in");
     window.setTimeout(() => els.candidateGrid.classList.remove("rolling-in"), 420);
     els.candidateGrid.querySelectorAll("button").forEach((button) => {
@@ -1306,6 +1306,16 @@ function cardTemplate(monster) {
     <button class="monster-card" data-name="${monster.name}" style="--type-color: ${color}">
       ${cardInnerTemplate(monster)}
       <span class="rating">Lock In</span>
+    </button>
+  `;
+}
+
+function arenaCardTemplate(monster) {
+  const color = monster.legendary ? typeColors.Legendary : typeColors[monster.types[0]] || "#7f8790";
+  return `
+    <button class="monster-card arena-choice-card" data-name="${monster.name}" style="--type-color: ${color}">
+      ${spriteImg(monster)}
+      <h3>${monster.name}</h3>
     </button>
   `;
 }

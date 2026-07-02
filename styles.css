@@ -447,11 +447,12 @@ h2 {
 }
 
 .arena[data-mode="arena"] .candidate-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 6px;
 }
 
-.arena[data-mode="arena"] .candidate-grid.three-roll .monster-card {
-  min-height: 104px;
+.arena[data-mode="arena"] .candidate-grid.three-roll .arena-choice-card {
+  min-height: 74px;
 }
 
 .arena[data-mode="arena"] .monster-card {
@@ -476,6 +477,30 @@ h2 {
 
 .arena[data-mode="arena"] .monster-card .rating {
   font-size: 0.78rem;
+}
+
+.arena[data-mode="arena"] .arena-choice-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 74px;
+  padding: 7px 9px;
+  text-align: left;
+}
+
+.arena[data-mode="arena"] .arena-choice-card .pokemon-sprite {
+  width: 52px;
+  height: 52px;
+}
+
+.arena[data-mode="arena"] .arena-choice-card h3 {
+  margin: 0;
+  overflow: hidden;
+  color: #e9ffd9;
+  font-size: clamp(0.82rem, 1.4vw, 1.05rem);
+  line-height: 1.1;
+  text-overflow: ellipsis;
 }
 
 .candidate-grid.rolling-in .monster-card {
