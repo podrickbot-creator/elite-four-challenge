@@ -1136,10 +1136,17 @@ function candidatePool() {
 
 function arenaCandidatePool() {
   const used = usedNames();
-  return monsters.filter(
+  const pool = monsters.filter(
     (monster) =>
       !excludedPokemon.has(monster.name) &&
       !used.has(monster.name) &&
+      !monster.legendary &&
+      generations.includes(monster.generation),
+  );
+  if (pool.length) return pool;
+  return monsters.filter(
+    (monster) =>
+      !excludedPokemon.has(monster.name) &&
       !monster.legendary &&
       generations.includes(monster.generation),
   );
@@ -1181,6 +1188,24 @@ function pickCandidates() {
   const candidates = candidatePool();
   const count = isArenaMode() ? Math.max(1, slots.length - state.selectedSlot) : 3;
   const rolled = shuffle(candidates).slice(0, count);
+  state.slotRolls[state.selectedSlot] = rolled.length ? rolled : null;
+  state.candidates = rolled;
+}
+
+function rollArenaChoices() {
+  const count = Math.max(1, slots.length - state.selectedSlot);
+  const used = usedNames();
+  const primary = arenaCandidatePool();
+  const usedPrimary = new Set(primary.map((monster) => monster.name));
+  const fallback = monsters.filter(
+    (monster) =>
+      !excludedPokemon.has(monster.name) &&
+      !monster.legendary &&
+      generations.includes(monster.generation) &&
+      !used.has(monster.name) &&
+      !usedPrimary.has(monster.name),
+  );
+  const rolled = shuffle([...primary, ...fallback]).slice(0, count);
   state.slotRolls[state.selectedSlot] = rolled.length ? rolled : null;
   state.candidates = rolled;
 }
@@ -1238,6 +1263,10 @@ function renderCandidates() {
       typeColors[draftedPick.types[0]] || "#7f8790"
     }">${cardInnerTemplate(draftedPick)}<span class="rating">Locked</span></div>`;
     return;
+  }
+
+  if (isArenaMode() && state.candidates.length === 0) {
+    rollArenaChoices();
   }
 
   if (state.candidates.length === 0) {
@@ -1396,7 +1425,7 @@ function rerollArenaChoices() {
   state.slotRolls[state.selectedSlot] = null;
   els.candidateGrid.classList.add("rolling-in");
   window.setTimeout(() => {
-    pickCandidates();
+    rollArenaChoices();
     render();
   }, 280);
 }
@@ -1423,7 +1452,7 @@ function selectSlot(index) {
   state.selectedSlot = index;
   const needsRoll = !state.picks[index] && !state.slotRolls[index];
   if (isArenaMode() && needsRoll) {
-    pickCandidates();
+    rollArenaChoices();
     render();
     return;
   }
@@ -1453,7 +1482,7 @@ function lockPick(pick) {
   if (nextOpen !== -1) {
     state.selectedSlot = nextOpen;
     if (isArenaMode()) {
-      pickCandidates();
+      rollArenaChoices();
       render();
       return;
     }
@@ -1617,7 +1646,7 @@ function advanceArenaBattle() {
   resetArenaDraft();
   state.arenaBattle = state.arenaWins + 1;
   state.opponentTeam = buildArenaOpponentTeam();
-  pickCandidates();
+  rollArenaChoices();
   render();
 }
 
@@ -1904,13 +1933,13 @@ function startRun() {
   els.setupPanel.classList.add("hidden");
   els.arena.classList.remove("hidden");
   els.verdict.classList.remove("hidden");
-  render();
   if (isArenaMode()) {
     state.opponentTeam = buildArenaOpponentTeam();
-    pickCandidates();
+    rollArenaChoices();
     render();
     return;
   }
+  render();
   spinRoll("both");
 }
 
