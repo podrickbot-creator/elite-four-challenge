@@ -446,6 +446,38 @@ h2 {
   min-height: 146px;
 }
 
+.arena[data-mode="arena"] .candidate-grid {
+  gap: 6px;
+}
+
+.arena[data-mode="arena"] .candidate-grid.three-roll .monster-card {
+  min-height: 104px;
+}
+
+.arena[data-mode="arena"] .monster-card {
+  gap: 12px;
+  padding: 10px 14px 10px 10px;
+  border-width: 3px;
+}
+
+.arena[data-mode="arena"] .monster-name-line {
+  grid-template-columns: 86px 1fr;
+  gap: 12px;
+}
+
+.arena[data-mode="arena"] .monster-card .pokemon-sprite {
+  width: 84px;
+  height: 84px;
+}
+
+.arena[data-mode="arena"] .monster-card .monster-name h3 {
+  font-size: clamp(1.25rem, 2.8vw, 2.05rem);
+}
+
+.arena[data-mode="arena"] .monster-card .rating {
+  font-size: 0.78rem;
+}
+
 .candidate-grid.rolling-in .monster-card {
   animation: rollCardIn 420ms steps(4, end);
 }
@@ -719,6 +751,19 @@ h2 {
 .arena-matchup-slot .pokemon-sprite {
   width: 76px;
   height: 76px;
+}
+
+.your-slot {
+  min-height: 92px;
+}
+
+.your-slot .pokemon-sprite {
+  width: 58px;
+  height: 58px;
+}
+
+.your-slot small {
+  font-size: 0.58rem;
 }
 
 .rival-slot {
