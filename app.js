@@ -1015,6 +1015,7 @@ let state;
 let spinTimer;
 let arenaRollTimer;
 let arenaRollFinishTimer;
+let arenaRevealTimers = [];
 
 const els = {
   generation: document.querySelector("#generationConstraint"),
@@ -1034,6 +1035,7 @@ const els = {
   candidateGrid: document.querySelector("#candidateGrid"),
   choiceCount: document.querySelector("#choiceCount"),
   arenaDraftTeam: document.querySelector("#arenaDraftTeam"),
+  battleReveal: document.querySelector("#battleReveal"),
   teamGrid: document.querySelector("#teamGrid"),
   teamHeaderEyebrow: document.querySelector(".team-header .eyebrow"),
   teamHeaderTitle: document.querySelector(".team-header h2"),
@@ -1078,6 +1080,7 @@ function newState() {
     arenaLastResult: null,
     arenaRolling: false,
     arenaRollingFrames: [],
+    arenaReveal: null,
     mode: previousSettings.mode,
     started: false,
   };
@@ -1301,6 +1304,7 @@ function render() {
   renderCandidates();
   renderTeam();
   renderArenaDraftTeam();
+  renderArenaReveal();
   updateScore();
 }
 
@@ -1440,8 +1444,9 @@ function renderArenaDraftTeam() {
         ${slots
           .map((slot, index) => {
             const rival = state.opponentTeam[index];
+            const activeMatch = state.arenaReveal?.phase === "scan" && state.arenaReveal.step === index;
             return `
-              <div class="arena-matchup-slot rival-slot">
+              <div class="arena-matchup-slot rival-slot${activeMatch ? " matchup-active" : ""}">
                 ${spriteImg(rival)}
                 <small>${rival.name}</small>
               </div>
@@ -1454,6 +1459,7 @@ function renderArenaDraftTeam() {
         ${slots
           .map((slot, index) => {
             const pick = state.picks[index];
+            const activeMatch = state.arenaReveal?.phase === "scan" && state.arenaReveal.step === index;
             const rollingFrame =
               state.arenaRolling && !pick && index >= state.selectedSlot
                 ? state.arenaRollingFrames[index - state.selectedSlot]
@@ -1462,7 +1468,7 @@ function renderArenaDraftTeam() {
             const candidate = !pick && index >= state.selectedSlot ? state.candidates[index - state.selectedSlot] : null;
             if (pick) {
               return `
-                <div class="arena-matchup-slot your-slot filled">
+                <div class="arena-matchup-slot your-slot filled${activeMatch ? " matchup-active" : ""}">
                   ${spriteImg(pick)}
                   <small>${pick.name}</small>
                 </div>
@@ -1504,6 +1510,58 @@ function renderArenaDraftTeam() {
   els.arenaDraftTeam.querySelectorAll(".choice-slot").forEach((button) => {
     button.addEventListener("click", () => draft(button.dataset.name));
   });
+}
+
+function renderArenaReveal() {
+  if (!isArenaMode() || !state.arenaReveal) {
+    els.battleReveal.classList.add("hidden");
+    els.battleReveal.innerHTML = "";
+    return;
+  }
+  const reveal = state.arenaReveal;
+  const battle = reveal.battle || state.arenaLastResult || arenaBattleResult();
+  const resultRecord = battle.won && reveal.phase === "result" ? state.arenaWins : state.arenaWins + 1;
+  const isFinalWin = battle.won && resultRecord >= arenaTargetWins;
+  const phaseCopy = {
+    vs: {
+      eyebrow: "Elite Four Battle",
+      title: "You vs Rival",
+      subcopy: "Teams are locked. The arena is watching.",
+      className: "vs",
+    },
+    scan: {
+      eyebrow: `Matchup ${Math.min(slots.length, reveal.step + 1)} / ${slots.length}`,
+      title: "Checking the battle line",
+      subcopy: "Every slot matters.",
+      className: "scan",
+    },
+    result: battle.won
+      ? {
+          eyebrow: isFinalWin ? "Arena Cleared" : "Battle Result",
+          title: isFinalWin ? "Champion Run!" : "Victory!",
+          subcopy: isFinalWin ? `${resultRecord}-0. You cleared the arena.` : `${resultRecord}-0. Next rival incoming.`,
+          className: "win",
+        }
+      : {
+          eyebrow: "Battle Result",
+          title: "Defeat",
+          subcopy:
+            battle.winRate >= 45
+              ? `So close. Your run ended at ${state.arenaWins}-1.`
+              : `The rival had the answer. Your run ended at ${state.arenaWins}-1.`,
+          className: "loss",
+        },
+  }[reveal.phase];
+
+  els.battleReveal.className = `battle-reveal ${phaseCopy.className}`;
+  els.battleReveal.innerHTML = `
+    <div class="battle-reveal-card">
+      <p>${phaseCopy.eyebrow}</p>
+      <strong>${phaseCopy.title}</strong>
+      <span>${phaseCopy.subcopy}</span>
+      <em>${reveal.phase === "result" ? `${battle.winRate}% win check` : "Calculating..."}</em>
+    </div>
+  `;
 }
 
 function rerollArenaChoices() {
@@ -1615,6 +1673,18 @@ function currentScore() {
 function updateScore() {
   const picks = state.picks.filter(Boolean);
   if (isArenaMode()) {
+    if (state.arenaReveal) {
+      if (state.arenaReveal.phase === "vs") {
+        els.verdict.textContent = "Teams are locked. Battle is about to start.";
+      } else if (state.arenaReveal.phase === "scan") {
+        els.verdict.textContent = `Checking matchup ${state.arenaReveal.step + 1}/6...`;
+      } else {
+        els.verdict.textContent = state.arenaReveal.battle.won
+          ? `Victory! Record: ${state.arenaWins}-0.`
+          : `Defeat. Your run ended at ${state.arenaWins}-1.`;
+      }
+      return;
+    }
     if (picks.length < slots.length) {
       const nextChoices = Math.max(1, slots.length - picks.length);
       els.verdict.textContent = `Arena record: ${state.arenaWins}-0. Draft ${picks.length}/6. Next pick has ${nextChoices} choice${nextChoices === 1 ? "" : "s"}.`;
@@ -1712,6 +1782,7 @@ function ensureFullArenaOpponentTeam() {
 }
 
 function resetArenaDraft() {
+  clearArenaRevealTimers();
   state.selectedSlot = 0;
   state.picks = Array(slots.length).fill(null);
   state.slotRolls = Array(slots.length).fill(null);
@@ -1721,6 +1792,7 @@ function resetArenaDraft() {
   state.arenaLastResult = null;
   state.arenaRolling = false;
   state.arenaRollingFrames = [];
+  state.arenaReveal = null;
 }
 
 function advanceArenaBattle() {
@@ -1733,8 +1805,46 @@ function advanceArenaBattle() {
 function resolveArenaBattle() {
   const battle = arenaBattleResult();
   state.arenaLastResult = battle;
+  startArenaBattleReveal(battle);
+}
+
+function queueArenaReveal(callback, delay) {
+  const timer = window.setTimeout(callback, delay);
+  arenaRevealTimers.push(timer);
+}
+
+function clearArenaRevealTimers() {
+  arenaRevealTimers.forEach((timer) => window.clearTimeout(timer));
+  arenaRevealTimers = [];
+}
+
+function startArenaBattleReveal(battle) {
+  clearArenaRevealTimers();
+  state.arenaReveal = { phase: "vs", step: -1, battle };
+  render();
+
+  slots.forEach((slot, index) => {
+    queueArenaReveal(() => {
+      state.arenaReveal = { phase: "scan", step: index, battle };
+      render();
+    }, 900 + index * 360);
+  });
+
+  queueArenaReveal(() => {
+    if (battle.won) {
+      state.arenaWins += 1;
+    }
+    state.arenaReveal = { phase: "result", step: slots.length - 1, battle };
+    render();
+  }, 900 + slots.length * 360 + 280);
+
+  queueArenaReveal(() => finishArenaBattleReveal(battle), 900 + slots.length * 360 + 1750);
+}
+
+function finishArenaBattleReveal(battle) {
+  clearArenaRevealTimers();
+  state.arenaReveal = null;
   if (battle.won) {
-    state.arenaWins += 1;
     if (state.arenaWins >= arenaTargetWins) {
       showRankModal();
       return;
@@ -1812,11 +1922,11 @@ function showRankModal() {
 function showArenaRankModal() {
   const result = arenaResult();
   const arenaTitle =
-    result.wins >= 12
+    result.wins >= arenaTargetWins
       ? "Arena Champion"
-      : result.wins >= 10
+      : result.wins >= 5
         ? "Arena Finalist"
-        : result.wins >= 7
+        : result.wins >= 3
           ? "Arena Contender"
       : "Arena Challenger";
   els.resultHeading.textContent = "Arena Matchup";
@@ -1830,7 +1940,7 @@ function showArenaRankModal() {
   els.rankScore.textContent = "";
   els.rankDescription.textContent =
     result.wins >= arenaTargetWins
-      ? "You cleared the arena. 12 straight wins."
+      ? `You cleared the arena. ${arenaTargetWins} straight wins.`
       : `Your run ended at ${result.wins} win${result.wins === 1 ? "" : "s"}.`;
   els.resultTeam.innerHTML = `
     <div class="arena-results-grid">
@@ -1999,6 +2109,7 @@ function showSetup() {
   window.clearInterval(spinTimer);
   window.clearInterval(arenaRollTimer);
   window.clearTimeout(arenaRollFinishTimer);
+  clearArenaRevealTimers();
   state = newState();
   state.mode = "normal";
   els.setupPanel.classList.remove("hidden");
@@ -2012,6 +2123,7 @@ function startRun() {
   window.clearInterval(spinTimer);
   window.clearInterval(arenaRollTimer);
   window.clearTimeout(arenaRollFinishTimer);
+  clearArenaRevealTimers();
   state = newState();
   state.started = true;
   els.setupPanel.classList.add("hidden");
