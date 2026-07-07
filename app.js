@@ -1520,7 +1520,7 @@ function renderArenaReveal() {
   }
   const reveal = state.arenaReveal;
   const battle = reveal.battle || state.arenaLastResult || arenaBattleResult();
-  const resultRecord = battle.won && reveal.phase === "result" ? state.arenaWins : state.arenaWins + 1;
+  const resultRecord = battle.won ? state.arenaWins + 1 : state.arenaWins;
   const isFinalWin = battle.won && resultRecord >= arenaTargetWins;
   const phaseCopy = {
     vs: {
@@ -1680,7 +1680,7 @@ function updateScore() {
         els.verdict.textContent = `Checking matchup ${state.arenaReveal.step + 1}/6...`;
       } else {
         els.verdict.textContent = state.arenaReveal.battle.won
-          ? `Victory! Record: ${state.arenaWins}-0.`
+          ? `Victory! Record: ${state.arenaWins + 1}-0.`
           : `Defeat. Your run ended at ${state.arenaWins}-1.`;
       }
       return;
@@ -1831,9 +1831,6 @@ function startArenaBattleReveal(battle) {
   });
 
   queueArenaReveal(() => {
-    if (battle.won) {
-      state.arenaWins += 1;
-    }
     state.arenaReveal = { phase: "result", step: slots.length - 1, battle };
     render();
   }, 900 + slots.length * 360 + 280);
@@ -1845,6 +1842,7 @@ function finishArenaBattleReveal(battle) {
   clearArenaRevealTimers();
   state.arenaReveal = null;
   if (battle.won) {
+    state.arenaWins += 1;
     if (state.arenaWins >= arenaTargetWins) {
       showRankModal();
       return;
