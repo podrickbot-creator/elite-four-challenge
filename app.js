@@ -28,7 +28,7 @@ const biomeRolls = [
 const legendaryBiome = "Legendary";
 const captainBiome = "Team Captain";
 const arenaOpponentSize = 6;
-const arenaTargetWins = 12;
+const arenaTargetWins = 6;
 
 const typeColors = {
   Electric: "#f6ca45",
@@ -1428,7 +1428,7 @@ function renderArenaDraftTeam() {
     <div class="arena-board-header">
       <div class="arena-record">
         <strong>${state.arenaWins}-0</strong>
-        <span>12 wins needed</span>
+        <span>${arenaTargetWins} wins needed</span>
       </div>
       <button class="arena-reroll-button" type="button" ${state.arenaRerolls === 0 || state.arenaRolling || Boolean(state.picks[state.selectedSlot]) ? "disabled" : ""}>
         Reroll ${state.arenaRerolls}
