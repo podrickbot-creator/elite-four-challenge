@@ -167,6 +167,49 @@ h2 {
   background: #0b271f;
 }
 
+.project-preview {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.08) 2px, transparent 2px) 0 0 / 38px 38px,
+    linear-gradient(135deg, #1f7aa0, #145d83);
+}
+
+.pond-preview span {
+  position: relative;
+  width: 72px;
+  height: 40px;
+  background: #f47b3b;
+  box-shadow:
+    -18px 7px 0 #ffd35a,
+    18px -6px 0 rgba(255, 255, 255, 0.5),
+    31px 8px 0 #f47b3b,
+    -56px -40px 0 #79d66f,
+    70px 48px 0 #8c9aa7;
+}
+
+.pond-preview span::before {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  top: 12px;
+  left: 12px;
+  background: #07101f;
+}
+
+.pond-preview span::after {
+  content: "";
+  position: absolute;
+  right: -28px;
+  top: 8px;
+  width: 28px;
+  height: 24px;
+  background: #ffd35a;
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+}
+
 .project-copy {
   display: grid;
   align-content: center;
