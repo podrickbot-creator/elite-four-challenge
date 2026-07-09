@@ -1,123 +1,111 @@
-const creatures = [
+const items = [
   {
-    id: "orange-koi",
-    name: "Orange Koi",
+    id: "tiny-lamp",
+    name: "Tiny Lamp",
     rarity: "Common",
-    biome: "Local",
-    type: "fish",
-    color: "#f47b3b",
-    alt: "#ffd35a",
-    story: "Your first koi. It follows the smallest ripples and trusts the pond already.",
+    category: "House",
+    mood: "Neighborhood",
+    icon: "lamp",
+    story: "A warm little lamp for Marlo's reading corner.",
   },
   {
-    id: "silver-minnow",
-    name: "Silver Minnow",
+    id: "striped-rug",
+    name: "Striped Rug",
     rarity: "Common",
-    biome: "Local",
-    type: "fish",
-    color: "#c9d7e2",
-    alt: "#f7ffe8",
-    story: "A quick little flash of silver from a short walk close to home.",
+    category: "House",
+    mood: "City",
+    icon: "rug",
+    story: "Soft under froggy feet after a long walk.",
   },
   {
-    id: "moss-frog",
-    name: "Moss Frog",
+    id: "tea-kettle",
+    name: "Tea Kettle",
     rarity: "Common",
-    biome: "Forest",
-    type: "frog",
-    color: "#79d66f",
-    alt: "#406b38",
-    story: "It arrived with wet leaves and the sound of a trail underfoot.",
+    category: "House",
+    mood: "Neighborhood",
+    icon: "kettle",
+    story: "Marlo insists every good trip ends with tea.",
   },
   {
-    id: "city-guppy",
-    name: "City Guppy",
+    id: "flower-pot",
+    name: "Flower Pot",
     rarity: "Uncommon",
-    biome: "City",
-    type: "fish",
-    color: "#5bd7ff",
-    alt: "#ff8fb8",
-    story: "A neon little swimmer, bright from sidewalks, signs, and late trains.",
+    category: "Backyard",
+    mood: "Nature",
+    icon: "flower",
+    story: "A bright pot for the backyard path.",
   },
   {
-    id: "pond-turtle",
-    name: "Pond Turtle",
+    id: "moss-stone",
+    name: "Moss Stone",
     rarity: "Uncommon",
-    biome: "Water",
-    type: "turtle",
-    color: "#4f9c5d",
-    alt: "#8b6b3f",
-    story: "A patient traveler. It only appears when your route bends toward water.",
+    category: "Backyard",
+    mood: "Nature",
+    icon: "stone",
+    story: "Cool, green, and perfect for sitting dramatically.",
   },
   {
-    id: "pine-dragonfly",
-    name: "Pine Dragonfly",
+    id: "rain-hat",
+    name: "Rain Hat",
     rarity: "Uncommon",
-    biome: "Forest",
-    type: "dragonfly",
-    color: "#8be7d4",
-    alt: "#f7ffe8",
-    story: "It skims the pond like a green spark from somewhere quiet and wooded.",
+    category: "Outfit",
+    mood: "Waterfront",
+    icon: "hat",
+    story: "A cheerful hat for misty mornings and puddle weather.",
   },
   {
-    id: "alpine-koi",
-    name: "Alpine Koi",
+    id: "train-ticket",
+    name: "Framed Ticket",
     rarity: "Rare",
-    biome: "Mountain",
-    type: "fish",
-    color: "#f7ffe8",
-    alt: "#6aa0ff",
-    story: "Cold-water shimmer from a route with elevation and stubborn legs.",
+    category: "House",
+    mood: "Transit",
+    icon: "ticket",
+    story: "A keepsake from somewhere far enough to feel different.",
   },
   {
-    id: "golden-koi",
-    name: "Golden Koi",
+    id: "moon-bench",
+    name: "Moon Bench",
     rarity: "Rare",
-    biome: "Water",
-    type: "fish",
-    color: "#ffd35a",
-    alt: "#ff9d4d",
-    story: "A lucky gold ripple. It remembers a longer trip near open water.",
+    category: "Backyard",
+    mood: "City",
+    icon: "bench",
+    story: "A quiet bench for watching streetlights become stars.",
   },
   {
-    id: "ticket-eel",
-    name: "Ticket Eel",
+    id: "traveler-scarf",
+    name: "Traveler Scarf",
     rarity: "Rare",
-    biome: "Transit",
-    type: "fish",
-    color: "#b98cff",
-    alt: "#ffd35a",
-    story: "It slips between stations, terminals, and the hum of departure boards.",
+    category: "Outfit",
+    mood: "Transit",
+    icon: "scarf",
+    story: "A soft scarf that makes Marlo look like he knows secret shortcuts.",
   },
   {
-    id: "storm-koi",
-    name: "Storm Koi",
+    id: "pond-bridge",
+    name: "Pond Bridge",
     rarity: "Epic",
-    biome: "Mountain",
-    type: "fish",
-    color: "#5d6dff",
-    alt: "#d7e0ff",
-    story: "A deep-blue koi with thunder in its tail. It favors bigger journeys.",
+    category: "Backyard",
+    mood: "Waterfront",
+    icon: "bridge",
+    story: "A little bridge that makes the whole backyard feel like a storybook.",
   },
   {
-    id: "ghost-koi",
-    name: "Ghost Koi",
+    id: "star-lantern",
+    name: "Star Lantern",
     rarity: "Epic",
-    biome: "City",
-    type: "fish",
-    color: "#e8dcff",
-    alt: "#9f7cff",
-    story: "A pale shimmer from late-night streets and places you almost forgot.",
+    category: "House",
+    mood: "Nature",
+    icon: "star",
+    story: "It glows like a memory from a road with no rush.",
   },
   {
-    id: "dragon-koi",
-    name: "Dragon Koi",
+    id: "cloud-cape",
+    name: "Cloud Cape",
     rarity: "Legendary",
-    biome: "Transit",
-    type: "fish",
-    color: "#ff5d5a",
-    alt: "#ffd35a",
-    story: "A mythic traveler. It follows huge distance, strange timing, and luck.",
+    category: "Outfit",
+    mood: "Transit",
+    icon: "cape",
+    story: "A legendary cape for a frog who has seen the world move beneath him.",
   },
 ];
 
@@ -130,124 +118,117 @@ const rarityRank = {
 };
 
 const rarityColor = {
-  Common: "#8be7d4",
-  Uncommon: "#79d66f",
+  Common: "#7fdc8b",
+  Uncommon: "#7bc8ff",
   Rare: "#ffd35a",
-  Epic: "#b98cff",
-  Legendary: "#ff8fb8",
+  Epic: "#cba0ff",
+  Legendary: "#ff91b8",
 };
 
 const state = {
   miles: 0,
-  ripples: 0,
-  biome: "Local",
-  owned: ["orange-koi"],
+  mood: "Neighborhood",
+  owned: [],
+  equippedOutfit: null,
   log: [],
 };
 
-const saveKey = "ripplebound-pond-v1";
+const saveKey = "ripplebound-frog-home-v1";
+const rollCost = 5;
 
 const els = {
   totalMiles: document.querySelector("#totalMiles"),
-  rippleEnergy: document.querySelector("#rippleEnergy"),
+  rollCount: document.querySelector("#rollCount"),
   ownedCount: document.querySelector("#ownedCount"),
   totalCount: document.querySelector("#totalCount"),
-  rarestFind: document.querySelector("#rarestFind"),
-  pondLife: document.querySelector("#pondLife"),
-  rippleLayer: document.querySelector("#rippleLayer"),
-  pondMessage: document.querySelector("#pondMessage"),
+  bestFind: document.querySelector("#bestFind"),
+  backyardItems: document.querySelector("#backyardItems"),
+  houseItems: document.querySelector("#houseItems"),
+  frogCompanion: document.querySelector("#frogCompanion"),
+  frogHat: document.querySelector("#frogHat"),
+  companionMessage: document.querySelector("#companionMessage"),
   collectionGrid: document.querySelector("#collectionGrid"),
   travelLog: document.querySelector("#travelLog"),
   tripForm: document.querySelector("#tripForm"),
   tripMiles: document.querySelector("#tripMiles"),
-  tripBiome: document.querySelector("#tripBiome"),
+  tripMood: document.querySelector("#tripMood"),
   rollButton: document.querySelector("#rollButton"),
   revealModal: document.querySelector("#revealModal"),
   revealRarity: document.querySelector("#revealRarity"),
-  revealCreature: document.querySelector("#revealCreature"),
+  revealItem: document.querySelector("#revealItem"),
   revealTitle: document.querySelector("#revealTitle"),
   revealStory: document.querySelector("#revealStory"),
   closeReveal: document.querySelector("#closeReveal"),
 };
 
-function creatureById(id) {
-  return creatures.find((creature) => creature.id === id);
+function itemById(id) {
+  return items.find((item) => item.id === id);
 }
 
-function ownedCreatures() {
-  return state.owned.map(creatureById).filter(Boolean);
+function ownedItems() {
+  return state.owned.map(itemById).filter(Boolean);
 }
 
 function weightedPool() {
   const miles = state.miles;
   const weights = {
-    Common: 58,
-    Uncommon: Math.min(32, 16 + miles * 0.18),
-    Rare: Math.min(20, 4 + miles * 0.08),
-    Epic: Math.min(10, Math.max(0, miles - 20) * 0.08),
-    Legendary: Math.min(3.5, Math.max(0, miles - 75) * 0.025),
+    Common: 54,
+    Uncommon: Math.min(34, 14 + miles * 0.18),
+    Rare: Math.min(22, 3 + miles * 0.08),
+    Epic: Math.min(11, Math.max(0, miles - 18) * 0.08),
+    Legendary: Math.min(3, Math.max(0, miles - 60) * 0.025),
   };
 
-  return creatures.flatMap((creature) => {
-    if (state.owned.includes(creature.id)) return [];
-    const biomeBoost = creature.biome === state.biome ? 1.9 : creature.biome === "Local" ? 1 : 0.65;
-    const ticketCount = Math.max(1, Math.round((weights[creature.rarity] || 1) * biomeBoost));
-    return Array.from({ length: ticketCount }, () => creature);
+  return items.flatMap((item) => {
+    if (state.owned.includes(item.id)) return [];
+    const moodBoost = item.mood === state.mood ? 2 : 0.8;
+    const tickets = Math.max(1, Math.round((weights[item.rarity] || 1) * moodBoost));
+    return Array.from({ length: tickets }, () => item);
   });
 }
 
-function rollCreature() {
+function rollItem() {
   const pool = weightedPool();
   if (!pool.length) return null;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-function ripplesForTrip(miles, biome) {
-  const biomeBonus = biome === "Transit" ? 4 : biome === "Water" || biome === "Mountain" ? 3 : 2;
-  return Math.max(1, Math.round(miles * 2 + biomeBonus));
+function itemMarkup(item) {
+  return `<span class="item-icon ${item.icon}" title="${item.name}" style="--rarity-color: ${rarityColor[item.rarity]}"></span>`;
 }
 
-function spriteMarkup(creature) {
-  return `
-    <div class="creature ${creature.type}" style="--creature-color: ${creature.color}; --creature-alt: ${creature.alt}">
-      <div class="sprite"></div>
-    </div>
-  `;
-}
+function renderScene() {
+  const houseItems = ownedItems().filter((item) => item.category === "House").slice(-4);
+  const yardItems = ownedItems().filter((item) => item.category === "Backyard").slice(-5);
+  const outfits = ownedItems().filter((item) => item.category === "Outfit");
+  const activeOutfit = outfits[outfits.length - 1] || null;
+  state.equippedOutfit = activeOutfit?.id || null;
 
-function staticSpriteMarkup(creature) {
-  return `
-    <div class="creature ${creature.type}" style="position: static; transform: none; animation: none; --creature-color: ${creature.color}; --creature-alt: ${creature.alt}">
-      <div class="sprite"></div>
-    </div>
-  `;
-}
-
-function renderPond() {
-  const owned = ownedCreatures();
-  els.pondLife.innerHTML = owned
-    .map((creature, index) => {
-      const x = 18 + ((index * 29) % 64);
-      const y = 24 + ((index * 19) % 54);
-      return `
-        <div class="creature ${creature.type}" style="left: ${x}%; top: ${y}%; --creature-color: ${creature.color}; --creature-alt: ${creature.alt}">
-          <div class="sprite"></div>
-        </div>
-      `;
-    })
+  els.houseItems.innerHTML = houseItems
+    .map((item, index) => `<div class="placed house-place place-${index + 1}">${itemMarkup(item)}</div>`)
     .join("");
+
+  els.backyardItems.innerHTML = yardItems
+    .map((item, index) => `<div class="placed yard-place place-${index + 1}">${itemMarkup(item)}</div>`)
+    .join("");
+
+  els.frogCompanion.dataset.outfit = activeOutfit?.icon || "none";
+  els.frogHat.textContent = activeOutfit ? activeOutfit.name.split(" ")[0] : "";
 }
 
 function renderCollection() {
-  els.collectionGrid.innerHTML = creatures
-    .map((creature) => {
-      const owned = state.owned.includes(creature.id);
+  els.collectionGrid.innerHTML = items
+    .map((item) => {
+      const owned = state.owned.includes(item.id);
       return `
         <div class="collection-card${owned ? "" : " locked"}">
-          <div class="sprite-wrap">${owned ? staticSpriteMarkup(creature) : "?"}</div>
+          <div class="item-preview-small">${owned ? itemMarkup(item) : "?"}</div>
           <div>
-            <h3>${owned ? creature.name : "Undiscovered"}</h3>
-            <p><span class="rarity" style="--rarity-color: ${rarityColor[creature.rarity]}">${creature.rarity}</span> · ${creature.biome}</p>
+            <h3>${owned ? item.name : "Undiscovered"}</h3>
+            <p>
+              <span class="rarity" style="--rarity-color: ${rarityColor[item.rarity]}">${item.rarity}</span>
+              · ${item.category}
+            </p>
           </div>
         </div>
       `;
@@ -257,7 +238,7 @@ function renderCollection() {
 
 function renderLog() {
   if (!state.log.length) {
-    els.travelLog.innerHTML = "<li>No trips yet. Add your first journey.</li>";
+    els.travelLog.innerHTML = "<li>No trips yet. Log Marlo's first journey.</li>";
     return;
   }
   els.travelLog.innerHTML = state.log
@@ -267,19 +248,22 @@ function renderLog() {
 }
 
 function renderStats() {
-  const owned = ownedCreatures();
-  const rarest = owned.reduce((best, creature) => (rarityRank[creature.rarity] > rarityRank[best.rarity] ? creature : best), owned[0]);
+  const owned = ownedItems();
+  const best = owned.reduce(
+    (current, item) => (!current || rarityRank[item.rarity] > rarityRank[current.rarity] ? item : current),
+    null,
+  );
   els.totalMiles.textContent = state.miles.toFixed(1);
-  els.rippleEnergy.textContent = state.ripples;
+  els.rollCount.textContent = Math.floor(state.miles / rollCost);
   els.ownedCount.textContent = state.owned.length;
-  els.totalCount.textContent = creatures.length;
-  els.rarestFind.textContent = rarest.rarity;
-  els.rollButton.disabled = state.ripples < 10 || state.owned.length >= creatures.length;
+  els.totalCount.textContent = items.length;
+  els.bestFind.textContent = best ? best.rarity : "None";
+  els.rollButton.disabled = state.miles < rollCost || state.owned.length >= items.length;
 }
 
 function render() {
   renderStats();
-  renderPond();
+  renderScene();
   renderCollection();
   renderLog();
 }
@@ -293,30 +277,21 @@ function loadGame() {
     const saved = JSON.parse(window.localStorage.getItem(saveKey));
     if (!saved) return;
     state.miles = Number(saved.miles) || 0;
-    state.ripples = Number(saved.ripples) || 0;
-    state.biome = saved.biome || "Local";
-    state.owned = Array.isArray(saved.owned) && saved.owned.length ? saved.owned.filter((id) => creatureById(id)) : ["orange-koi"];
+    state.mood = saved.mood || "Neighborhood";
+    state.owned = Array.isArray(saved.owned) ? saved.owned.filter((id) => itemById(id)) : [];
+    state.equippedOutfit = saved.equippedOutfit || null;
     state.log = Array.isArray(saved.log) ? saved.log.slice(0, 20) : [];
   } catch {
     state.log = [];
   }
 }
 
-function addRipple() {
-  const ripple = document.createElement("div");
-  ripple.className = "ripple";
-  ripple.style.left = `${20 + Math.random() * 60}%`;
-  ripple.style.top = `${20 + Math.random() * 58}%`;
-  els.rippleLayer.appendChild(ripple);
-  window.setTimeout(() => ripple.remove(), 900);
-}
-
-function showReveal(creature) {
-  els.revealRarity.textContent = creature.rarity;
-  els.revealRarity.style.color = rarityColor[creature.rarity];
-  els.revealCreature.innerHTML = staticSpriteMarkup(creature);
-  els.revealTitle.textContent = creature.name;
-  els.revealStory.textContent = creature.story;
+function showReveal(item) {
+  els.revealRarity.textContent = item.rarity;
+  els.revealRarity.style.color = rarityColor[item.rarity];
+  els.revealItem.innerHTML = itemMarkup(item);
+  els.revealTitle.textContent = item.name;
+  els.revealStory.textContent = item.story;
   els.revealModal.classList.add("open");
   els.revealModal.setAttribute("aria-hidden", "false");
 }
@@ -329,39 +304,35 @@ function closeReveal() {
 function logTrip(event) {
   event.preventDefault();
   const miles = Math.max(0.1, Number(els.tripMiles.value) || 0);
-  const biome = els.tripBiome.value;
-  const gained = ripplesForTrip(miles, biome);
+  const mood = els.tripMood.value;
   state.miles += miles;
-  state.ripples += gained;
-  state.biome = biome;
-  state.log.unshift(`${miles.toFixed(1)} miles · ${biome} · +${gained} ripples`);
-  els.pondMessage.textContent = `${biome} ripples reached your pond. You earned ${gained} travel ripples.`;
-  addRipple();
+  state.mood = mood;
+  state.log.unshift(`${miles.toFixed(1)} miles · ${mood} walk · ${Math.floor(state.miles / rollCost)} roll${Math.floor(state.miles / rollCost) === 1 ? "" : "s"} banked`);
+  els.companionMessage.textContent = `Marlo tucked away ${miles.toFixed(1)} miles from a ${mood.toLowerCase()} trip.`;
   saveGame();
   render();
 }
 
-function rollRipple() {
-  if (state.ripples < 10) return;
-  state.ripples -= 10;
-  addRipple();
-  const creature = rollCreature();
-  if (!creature) {
-    els.pondMessage.textContent = "Every known creature is already in your pond. That is a serious travel log.";
+function rollForItem() {
+  if (state.miles < rollCost) return;
+  state.miles -= rollCost;
+  const item = rollItem();
+  if (!item) {
+    els.companionMessage.textContent = "Marlo has collected every item in this prototype.";
     saveGame();
     render();
     return;
   }
-  state.owned.push(creature.id);
-  state.log.unshift(`Found ${creature.name} · ${creature.rarity} · ${state.biome}`);
-  els.pondMessage.textContent = `${creature.name} joined your pond after ${state.miles.toFixed(1)} total miles.`;
+  state.owned.push(item.id);
+  state.log.unshift(`Found ${item.name} · ${item.rarity} ${item.category}`);
+  els.companionMessage.textContent = `${item.name} joined Marlo's ${item.category.toLowerCase()} collection.`;
   saveGame();
   render();
-  window.setTimeout(() => showReveal(creature), 300);
+  window.setTimeout(() => showReveal(item), 220);
 }
 
 els.tripForm.addEventListener("submit", logTrip);
-els.rollButton.addEventListener("click", rollRipple);
+els.rollButton.addEventListener("click", rollForItem);
 els.closeReveal.addEventListener("click", closeReveal);
 els.revealModal.addEventListener("click", (event) => {
   if (event.target === els.revealModal) closeReveal();

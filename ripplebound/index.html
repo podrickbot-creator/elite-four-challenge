@@ -4,88 +4,101 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ripplebound</title>
-    <meta name="description" content="Ripplebound - a pixel pond travel companion gacha prototype." />
+    <meta name="description" content="Ripplebound - a cozy frog travel companion prototype." />
     <meta property="og:title" content="Ripplebound" />
-    <meta property="og:description" content="A cozy pixel pond that grows with every place you go." />
+    <meta property="og:description" content="Travel with a frog companion, earn miles, and roll for items to build his home." />
     <meta property="og:type" content="website" />
-    <link rel="stylesheet" href="./styles.css?v=1" />
+    <link rel="stylesheet" href="./styles.css?v=3" />
   </head>
   <body>
     <main class="app-shell">
       <section class="hero-bar" aria-labelledby="appTitle">
         <div>
-          <p class="eyebrow">Travel Pond</p>
+          <p class="eyebrow">Travel Companion</p>
           <h1 id="appTitle">Ripplebound</h1>
-          <p class="tagline">A cozy pixel pond that grows with every place you go.</p>
+          <p class="tagline">Travel with your frog friend. Miles become little treasures for his house, backyard, and outfits.</p>
         </div>
-        <div class="pixel-badge" aria-hidden="true">
+        <div class="mini-frog" aria-hidden="true">
           <span></span>
         </div>
       </section>
 
       <section class="game-grid">
-        <div class="pond-panel">
-          <div class="pond-header">
+        <div class="home-panel">
+          <div class="home-header">
             <div>
-              <p class="eyebrow">Your Pond</p>
-              <h2 id="pondName">Starter Pond</h2>
+              <p class="eyebrow">Companion</p>
+              <h2>Marlo's Place</h2>
             </div>
             <div class="mile-chip">
               <strong id="totalMiles">0.0</strong>
-              <span>miles</span>
+              <span>miles banked</span>
             </div>
           </div>
 
-          <div class="pond" id="pond" aria-label="Pixel koi pond">
-            <div class="water-grid"></div>
-            <div class="pond-deco lily lily-one"></div>
-            <div class="pond-deco lily lily-two"></div>
-            <div class="pond-deco stone stone-one"></div>
-            <div class="pond-deco stone stone-two"></div>
-            <div class="pond-life" id="pondLife"></div>
-            <div class="ripple-layer" id="rippleLayer"></div>
+          <div class="frog-yard" aria-label="Frog companion home scene">
+            <div class="sky"></div>
+            <div class="cloud cloud-one"></div>
+            <div class="cloud cloud-two"></div>
+            <div class="house">
+              <div class="roof"></div>
+              <div class="door"></div>
+              <div class="window"></div>
+            </div>
+            <div class="backyard" id="backyardItems"></div>
+            <div class="house-items" id="houseItems"></div>
+            <div class="frog-stage">
+              <div class="frog" id="frogCompanion">
+                <div class="frog-hat" id="frogHat"></div>
+                <div class="frog-face">
+                  <span class="eye left"></span>
+                  <span class="eye right"></span>
+                  <span class="smile"></span>
+                </div>
+                <div class="frog-body"></div>
+              </div>
+            </div>
           </div>
 
-          <div class="pond-status">
-            <p id="pondMessage">Your first koi is waiting. Log a trip to send ripples through the pond.</p>
+          <div class="companion-note">
+            <p id="companionMessage">Marlo is ready for his first walk. Log miles to earn rolls for his home.</p>
           </div>
         </div>
 
         <aside class="control-panel" aria-label="Travel controls">
           <div class="stat-grid">
             <div>
-              <span>Ripples</span>
-              <strong id="rippleEnergy">0</strong>
+              <span>Rolls</span>
+              <strong id="rollCount">0</strong>
             </div>
             <div>
-              <span>Collection</span>
-              <strong><b id="ownedCount">1</b>/<b id="totalCount">12</b></strong>
+              <span>Items</span>
+              <strong><b id="ownedCount">0</b>/<b id="totalCount">12</b></strong>
             </div>
             <div>
-              <span>Rarest</span>
-              <strong id="rarestFind">Common</strong>
+              <span>Best Find</span>
+              <strong id="bestFind">None</strong>
             </div>
           </div>
 
           <form class="trip-form" id="tripForm">
             <label for="tripMiles">Miles traveled</label>
             <div class="trip-row">
-              <input id="tripMiles" name="tripMiles" type="number" min="0.1" max="10000" step="0.1" value="3.2" />
-              <select id="tripBiome" name="tripBiome" aria-label="Trip biome">
-                <option value="Local">Local</option>
-                <option value="Water">Near Water</option>
+              <input id="tripMiles" name="tripMiles" type="number" min="0.1" max="10000" step="0.1" value="2.5" />
+              <select id="tripMood" name="tripMood" aria-label="Trip style">
+                <option value="Neighborhood">Neighborhood</option>
                 <option value="City">City</option>
-                <option value="Forest">Forest</option>
-                <option value="Mountain">Mountain</option>
+                <option value="Nature">Nature</option>
+                <option value="Waterfront">Waterfront</option>
                 <option value="Transit">Airport / Train</option>
               </select>
             </div>
-            <button type="submit">Log Trip</button>
+            <button type="submit">Log Miles</button>
           </form>
 
           <button class="roll-button" id="rollButton" type="button">
-            <span>Roll Ripple</span>
-            <small id="rollCost">Costs 10 ripples</small>
+            <span>Roll Item</span>
+            <small id="rollCost">Costs 5 miles</small>
           </button>
 
           <div class="travel-log">
@@ -97,8 +110,8 @@
 
       <section class="collection-panel" aria-labelledby="collectionTitle">
         <div class="section-heading">
-          <p class="eyebrow">Discovered</p>
-          <h2 id="collectionTitle">Pond Life</h2>
+          <p class="eyebrow">Marlo's Stuff</p>
+          <h2 id="collectionTitle">Collection</h2>
         </div>
         <div class="collection-grid" id="collectionGrid"></div>
       </section>
@@ -107,13 +120,13 @@
     <div class="reveal-modal" id="revealModal" aria-hidden="true">
       <div class="reveal-card" role="dialog" aria-modal="true" aria-labelledby="revealTitle">
         <p class="eyebrow" id="revealRarity">Common</p>
-        <div class="reveal-creature" id="revealCreature"></div>
-        <h2 id="revealTitle">Orange Koi</h2>
-        <p id="revealStory">A ripple brought a new friend to the pond.</p>
-        <button id="closeReveal" type="button">Add to Pond</button>
+        <div class="item-preview" id="revealItem"></div>
+        <h2 id="revealTitle">Travel Mug</h2>
+        <p id="revealStory">Marlo found something for the house.</p>
+        <button id="closeReveal" type="button">Add to Home</button>
       </div>
     </div>
 
-    <script src="./app.js?v=1"></script>
+    <script src="./app.js?v=3"></script>
   </body>
 </html>
