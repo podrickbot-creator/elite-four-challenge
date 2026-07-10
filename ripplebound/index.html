@@ -8,31 +8,37 @@
     <meta property="og:title" content="Ripplebound" />
     <meta property="og:description" content="Travel with a frog companion, earn miles, and roll for items to build his home." />
     <meta property="og:type" content="website" />
-    <link rel="stylesheet" href="./styles.css?v=3" />
+    <link rel="stylesheet" href="./styles.css?v=4" />
   </head>
   <body>
-    <main class="app-shell">
-      <section class="hero-bar" aria-labelledby="appTitle">
-        <div>
-          <p class="eyebrow">Travel Companion</p>
-          <h1 id="appTitle">Ripplebound</h1>
-          <p class="tagline">Travel with your frog friend. Miles become little treasures for his house, backyard, and outfits.</p>
+    <main class="app-stage">
+      <section class="phone-shell" aria-labelledby="appTitle">
+        <div class="phone-status" aria-hidden="true">
+          <span>9:41</span>
+          <div><span></span><span></span><span></span></div>
         </div>
-        <div class="mini-frog" aria-hidden="true">
-          <span></span>
-        </div>
-      </section>
 
-      <section class="game-grid">
-        <div class="home-panel">
-          <div class="home-header">
+        <section class="hero-card" aria-labelledby="appTitle">
+          <div class="hero-copy">
+            <p class="eyebrow">Travel Companion</p>
+            <h1 id="appTitle">Ripplebound</h1>
+            <p class="tagline">Walk the world with Marlo. Spend miles on cozy finds for his cottage, backyard, and outfits.</p>
+          </div>
+          <div class="profile-pill">
+            <strong>Lv. 1</strong>
+            <span>Marlo</span>
+          </div>
+        </section>
+
+        <section class="home-panel">
+          <div class="top-hud">
             <div>
               <p class="eyebrow">Companion</p>
-              <h2>Marlo's Place</h2>
+              <h2>Marlo's Home</h2>
             </div>
             <div class="mile-chip">
               <strong id="totalMiles">0.0</strong>
-              <span>miles banked</span>
+              <span>miles</span>
             </div>
           </div>
 
@@ -58,18 +64,20 @@
                 <div class="frog-body"></div>
               </div>
             </div>
+            <div class="floating-badge mood-badge">Happy 100%</div>
+            <div class="floating-badge roll-badge"><span id="rollCount">0</span> rolls</div>
           </div>
 
           <div class="companion-note">
             <p id="companionMessage">Marlo is ready for his first walk. Log miles to earn rolls for his home.</p>
           </div>
-        </div>
+        </section>
 
         <aside class="control-panel" aria-label="Travel controls">
           <div class="stat-grid">
             <div>
-              <span>Rolls</span>
-              <strong id="rollCount">0</strong>
+              <span>Energy</span>
+              <strong>100%</strong>
             </div>
             <div>
               <span>Items</span>
@@ -79,6 +87,25 @@
               <span>Best Find</span>
               <strong id="bestFind">None</strong>
             </div>
+          </div>
+
+          <div class="action-dock" aria-label="Quick actions">
+            <button class="dock-button walk" type="submit" form="tripForm">
+              <span>+</span>
+              <small>Miles</small>
+            </button>
+            <button class="dock-button roll" id="rollButton" type="button">
+              <span>★</span>
+              <small>Roll</small>
+            </button>
+            <button class="dock-button house-tab" type="button" data-tab-target="collection">
+              <span>⌂</span>
+              <small>Stuff</small>
+            </button>
+            <button class="dock-button log-tab" type="button" data-tab-target="log">
+              <span>✦</span>
+              <small>Log</small>
+            </button>
           </div>
 
           <form class="trip-form" id="tripForm">
@@ -93,27 +120,31 @@
                 <option value="Transit">Airport / Train</option>
               </select>
             </div>
-            <button type="submit">Log Miles</button>
           </form>
 
-          <button class="roll-button" id="rollButton" type="button">
-            <span>Roll Item</span>
-            <small id="rollCost">Costs 5 miles</small>
-          </button>
-
-          <div class="travel-log">
+          <div class="travel-log app-panel" id="logPanel">
             <p class="eyebrow">Travel Log</p>
             <ul id="travelLog"></ul>
           </div>
         </aside>
-      </section>
 
-      <section class="collection-panel" aria-labelledby="collectionTitle">
-        <div class="section-heading">
-          <p class="eyebrow">Marlo's Stuff</p>
-          <h2 id="collectionTitle">Collection</h2>
-        </div>
-        <div class="collection-grid" id="collectionGrid"></div>
+        <section class="collection-panel app-panel" id="collectionPanel" aria-labelledby="collectionTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Inventory</p>
+              <h2 id="collectionTitle">Marlo's Stuff</h2>
+            </div>
+            <small id="rollCost">5 miles per roll</small>
+          </div>
+          <div class="collection-grid" id="collectionGrid"></div>
+        </section>
+
+        <nav class="bottom-tabs" aria-label="App navigation">
+          <button class="active" type="button" data-tab-target="home">Home</button>
+          <button type="button" data-tab-target="collection">Items</button>
+          <button type="button" data-tab-target="log">Trips</button>
+          <button type="button" data-tab-target="profile">Marlo</button>
+        </nav>
       </section>
     </main>
 
@@ -127,6 +158,6 @@
       </div>
     </div>
 
-    <script src="./app.js?v=3"></script>
+    <script src="./app.js?v=4"></script>
   </body>
 </html>

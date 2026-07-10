@@ -159,6 +159,7 @@ const els = {
   revealTitle: document.querySelector("#revealTitle"),
   revealStory: document.querySelector("#revealStory"),
   closeReveal: document.querySelector("#closeReveal"),
+  tabButtons: document.querySelectorAll("[data-tab-target]"),
 };
 
 function itemById(id) {
@@ -336,6 +337,22 @@ els.rollButton.addEventListener("click", rollForItem);
 els.closeReveal.addEventListener("click", closeReveal);
 els.revealModal.addEventListener("click", (event) => {
   if (event.target === els.revealModal) closeReveal();
+});
+els.tabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const target = button.dataset.tabTarget;
+    const section =
+      target === "collection"
+        ? document.querySelector("#collectionPanel")
+        : target === "log"
+          ? document.querySelector("#logPanel")
+          : document.querySelector(".home-panel");
+
+    section?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelectorAll(".bottom-tabs button").forEach((tab) => {
+      tab.classList.toggle("active", tab.dataset.tabTarget === target);
+    });
+  });
 });
 
 loadGame();
